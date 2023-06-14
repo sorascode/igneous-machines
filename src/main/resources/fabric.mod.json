@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "igneous-machines",
-	"version": "${version}",
+	"version": "1.0",
 	"name": "Igneous Machines",
 	"description": "This is an example description! Tell everyone what your mod is about!",
 	"authors": [
