@@ -1,16 +1,20 @@
 package com.herdlicka.igneousmachines;
 
+import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public class IgneousPlacerScreenHandler extends ScreenHandler {
     private final Inventory inventory;
+
+    protected final World world;
 
     //This constructor gets called on the client when the server wants it to open the screenHandler,
     //The client will call the other constructor with an empty Inventory and the screenHandler will automatically
@@ -25,6 +29,7 @@ public class IgneousPlacerScreenHandler extends ScreenHandler {
         super(ExampleMod.IGNEOUS_PLACER_SCREEN_HANDLER, syncId);
         checkSize(inventory, 10);
         this.inventory = inventory;
+        this.world = playerInventory.player.getWorld();
         //some inventories do custom logic when a player opens it.
         inventory.onOpen(playerInventory.player);
 
@@ -38,7 +43,7 @@ public class IgneousPlacerScreenHandler extends ScreenHandler {
                 this.addSlot(new Slot(inventory, l + m * 3, 62 + l * 18, 17 + m * 18));
             }
         }
-        this.addSlot(new Slot(inventory, 9, 134, 35));
+        this.addSlot(new Slot(inventory, 9, 24, 41));
 
         //The player inventory
         for (m = 0; m < 3; ++m) {
@@ -70,8 +75,23 @@ public class IgneousPlacerScreenHandler extends ScreenHandler {
                 if (!this.insertItem(originalStack, this.inventory.size(), this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (!this.insertItem(originalStack, 0, this.inventory.size(), false)) {
-                return ItemStack.EMPTY;
+            } else {
+                if (isFuel(originalStack)) {
+                    if (!this.insertItem(originalStack, 9, 10, false)) {
+                        if (originalStack.getItem() instanceof BlockItem) {
+                            if (!this.insertItem(originalStack, 0, 9, false)) {
+                                return ItemStack.EMPTY;
+                            }
+                        }
+                        else {
+                            return ItemStack.EMPTY;
+                        }
+                    }
+                } else if (originalStack.getItem() instanceof BlockItem) {
+                    if (!this.insertItem(originalStack, 0, 9, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                } else return ItemStack.EMPTY;
             }
 
             if (originalStack.isEmpty()) {
@@ -82,6 +102,10 @@ public class IgneousPlacerScreenHandler extends ScreenHandler {
         }
 
         return newStack;
+    }
+
+    protected boolean isFuel(ItemStack itemStack) {
+        return AbstractFurnaceBlockEntity.canUseAsFuel(itemStack);
     }
 }
 
