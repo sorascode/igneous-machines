@@ -40,10 +40,10 @@ public class IgneousPlacerScreenHandler extends ScreenHandler {
         //Our inventory
         for (m = 0; m < 3; ++m) {
             for (l = 0; l < 3; ++l) {
-                this.addSlot(new Slot(inventory, l + m * 3, 62 + l * 18, 17 + m * 18));
+                this.addSlot(new BlockSlot(this, inventory, l + m * 3, 62 + l * 18, 17 + m * 18));
             }
         }
-        this.addSlot(new Slot(inventory, 9, 24, 41));
+        this.addSlot(new FuelSlot(this, inventory, 9, 24, 41));
 
         //The player inventory
         for (m = 0; m < 3; ++m) {
@@ -78,7 +78,7 @@ public class IgneousPlacerScreenHandler extends ScreenHandler {
             } else {
                 if (isFuel(originalStack)) {
                     if (!this.insertItem(originalStack, 9, 10, false)) {
-                        if (originalStack.getItem() instanceof BlockItem) {
+                        if (isBlock(originalStack)) {
                             if (!this.insertItem(originalStack, 0, 9, false)) {
                                 return ItemStack.EMPTY;
                             }
@@ -87,7 +87,7 @@ public class IgneousPlacerScreenHandler extends ScreenHandler {
                             return ItemStack.EMPTY;
                         }
                     }
-                } else if (originalStack.getItem() instanceof BlockItem) {
+                } else if (isBlock(originalStack)) {
                     if (!this.insertItem(originalStack, 0, 9, false)) {
                         return ItemStack.EMPTY;
                     }
@@ -106,6 +106,10 @@ public class IgneousPlacerScreenHandler extends ScreenHandler {
 
     protected boolean isFuel(ItemStack itemStack) {
         return AbstractFurnaceBlockEntity.canUseAsFuel(itemStack);
+    }
+
+    protected boolean isBlock(ItemStack itemStack) {
+        return itemStack.getItem() instanceof BlockItem;
     }
 }
 
