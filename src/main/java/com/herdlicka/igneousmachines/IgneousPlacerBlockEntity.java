@@ -15,7 +15,7 @@ import net.minecraft.util.math.BlockPos;
 
 public class IgneousPlacerBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory {
 
-    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(9, ItemStack.EMPTY);
+    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(10, ItemStack.EMPTY);
 
     public IgneousPlacerBlockEntity(BlockPos pos, BlockState state) {
         super(ExampleMod.IGNEOUS_PLACER_BLOCK_ENTITY, pos, state);
