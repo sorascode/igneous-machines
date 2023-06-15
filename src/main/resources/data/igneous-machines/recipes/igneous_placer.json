@@ -1,0 +1,29 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "#R#",
+        "QPQ",
+        "#F#"
+    ],
+    "key": {
+        "#": {
+            "item": "minecraft:cobblestone"
+        },
+        "R": {
+            "item": "minecraft:redstone"
+        },
+        "Q": {
+            "item": "minecraft:quartz"
+        },
+        "P": {
+            "item": "minecraft:piston"
+        },
+        "F": {
+            "item": "minecraft:furnace"
+        }
+    },
+    "result": {
+      "item": "igneous-machines:igneous_placer",
+      "count": 1
+    }
+}

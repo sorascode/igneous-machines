@@ -1,7 +1,8 @@
 package com.herdlicka.igneousmachines;
 
 import net.fabricmc.api.ModInitializer;
-
+import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
@@ -9,7 +10,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroups;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.screen.ScreenHandlerType;
@@ -31,7 +32,7 @@ public class ExampleMod implements ModInitializer {
 
     static {
         IGNEOUS_PLACER_BLOCK = Registry.register(Registries.BLOCK, IGNEOUS_PLACER, new IgneousPlacerBlock(FabricBlockSettings.copyOf(Blocks.DISPENSER)));
-        IGNEOUS_PLACER_BLOCK_ITEM = Registry.register(Registries.ITEM, IGNEOUS_PLACER, new BlockItem(IGNEOUS_PLACER_BLOCK, new Item.Settings()));
+        IGNEOUS_PLACER_BLOCK_ITEM = Registry.register(Registries.ITEM, IGNEOUS_PLACER, new BlockItem(IGNEOUS_PLACER_BLOCK, new FabricItemSettings()));
 
         //The parameter of build at the very end is always null, do not worry about it
         IGNEOUS_PLACER_BLOCK_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, IGNEOUS_PLACER, FabricBlockEntityTypeBuilder.create(IgneousPlacerBlockEntity::new, IGNEOUS_PLACER_BLOCK).build(null));
@@ -40,6 +41,8 @@ public class ExampleMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
-
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.REDSTONE).register(content -> {
+            content.add(IGNEOUS_PLACER_BLOCK_ITEM);
+        });
     }
 }
