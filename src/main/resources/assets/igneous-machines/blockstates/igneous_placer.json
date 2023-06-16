@@ -1,6 +1,11 @@
 {
   "variants": {
-    "": { "model": "igneous-machines:block/igneous_placer" }
+    "facing=north": { "model": "igneous-machines:block/igneous_placer" },
+    "facing=east":  { "model": "igneous-machines:block/igneous_placer", "y":  90 },
+    "facing=south": { "model": "igneous-machines:block/igneous_placer", "y": 180 },
+    "facing=west":  { "model": "igneous-machines:block/igneous_placer", "y": 270 },
+    "facing=up": { "model": "igneous-machines:block/igneous_placer_up" },
+    "facing=down": { "model": "igneous-machines:block/igneous_placer_down" }
   }
 }
 
