@@ -12,6 +12,7 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.random.Random;
 
 public class IgneousPlacerBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory {
 
@@ -26,9 +27,15 @@ public class IgneousPlacerBlockEntity extends BlockEntity implements NamedScreen
         return inventory;
     }
 
-    //These Methods are from the NamedScreenHandlerFactory Interface
-    //createMenu creates the ScreenHandler itself
-    //getDisplayName will Provide its name which is normally shown at the top
+    public int chooseNonEmptySlot(Random random) {
+        int i = -1;
+        int j = 1;
+        for (int k = 0; k < this.inventory.size() - 1; ++k) {
+            if (this.inventory.get(k).isEmpty() || random.nextInt(j++) != 0) continue;
+            i = k;
+        }
+        return i;
+    }
 
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
