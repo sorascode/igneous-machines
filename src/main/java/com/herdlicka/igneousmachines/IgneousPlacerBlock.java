@@ -5,8 +5,8 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.FacingBlock;
+import net.minecraft.block.dispenser.BlockPlacementDispenserBehavior;
 import net.minecraft.block.dispenser.DispenserBehavior;
-import net.minecraft.block.dispenser.ItemDispenserBehavior;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -78,18 +78,16 @@ public class IgneousPlacerBlock extends BlockWithEntity {
 
     protected void place(ServerWorld world, BlockPos pos) {
         BlockPointerImpl blockPointerImpl = new BlockPointerImpl(world, pos);
-        IgneousPlacerBlockEntity dispenserBlockEntity = (IgneousPlacerBlockEntity)blockPointerImpl.getBlockEntity();
-        int i = dispenserBlockEntity.chooseNonEmptySlot(world.random);
+        IgneousPlacerBlockEntity blockEntity = blockPointerImpl.getBlockEntity();
+        int i = blockEntity.chooseNonEmptySlot(world.random);
         if (i < 0) {
             world.syncWorldEvent(WorldEvents.DISPENSER_FAILS, pos, 0);
-            world.emitGameEvent(GameEvent.BLOCK_ACTIVATE, pos, GameEvent.Emitter.of(dispenserBlockEntity.getCachedState()));
+            world.emitGameEvent(GameEvent.BLOCK_ACTIVATE, pos, GameEvent.Emitter.of(blockEntity.getCachedState()));
             return;
         }
-        ItemStack itemStack = dispenserBlockEntity.getStack(i);
-        DispenserBehavior dispenserBehavior = new ItemDispenserBehavior();
-        if (!dispenserBehavior.equals(DispenserBehavior.NOOP)) {
-            dispenserBlockEntity.setStack(i, dispenserBehavior.dispense(blockPointerImpl, itemStack));
-        }
+        ItemStack itemStack = blockEntity.getStack(i);
+        DispenserBehavior dispenserBehavior = new BlockPlacementDispenserBehavior();
+        blockEntity.setStack(i, dispenserBehavior.dispense(blockPointerImpl, itemStack));
     }
 
     @Override
@@ -125,7 +123,7 @@ public class IgneousPlacerBlock extends BlockWithEntity {
         }
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof IgneousPlacerBlockEntity) {
-            ItemScatterer.spawn(world, pos, (IgneousPlacerBlockEntity)blockEntity);
+            ItemScatterer.spawn(world, pos, (IgneousPlacerBlockEntity) blockEntity);
             world.updateComparators(pos, this);
         }
         super.onStateReplaced(state, world, pos, newState, moved);
