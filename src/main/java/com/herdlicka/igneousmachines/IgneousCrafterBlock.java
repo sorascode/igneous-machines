@@ -31,11 +31,11 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
 import net.minecraft.world.event.GameEvent;
 
-public class IgneousPlacerBlock extends BlockWithEntity {
+public class IgneousCrafterBlock extends BlockWithEntity {
     public static final DirectionProperty FACING = FacingBlock.FACING;
     public static final BooleanProperty TRIGGERED = Properties.TRIGGERED;
 
-    public IgneousPlacerBlock(Settings settings) {
+    public IgneousCrafterBlock(Settings settings) {
         super(settings);
         this.setDefaultState(this.stateManager.getDefaultState().with(FACING, Direction.NORTH).with(TRIGGERED, false));
     }
@@ -47,12 +47,12 @@ public class IgneousPlacerBlock extends BlockWithEntity {
 
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return this.getDefaultState().with(FACING, ctx.getPlayerLookDirection().getOpposite());
+        return this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing().getOpposite());
     }
 
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new IgneousPlacerBlockEntity(pos, state);
+        return new IgneousCrafterBlockEntity(pos, state);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class IgneousPlacerBlock extends BlockWithEntity {
 
     protected void place(ServerWorld world, BlockPos pos) {
         BlockPointerImpl blockPointerImpl = new BlockPointerImpl(world, pos);
-        IgneousPlacerBlockEntity blockEntity = blockPointerImpl.getBlockEntity();
+        IgneousCrafterBlockEntity blockEntity = blockPointerImpl.getBlockEntity();
         int i = blockEntity.chooseNonEmptySlot(world.random);
         if (i < 0) {
             world.syncWorldEvent(WorldEvents.DISPENSER_FAILS, pos, 0);
@@ -111,7 +111,7 @@ public class IgneousPlacerBlock extends BlockWithEntity {
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
         BlockEntity blockEntity;
-        if (itemStack.hasCustomName() && (blockEntity = world.getBlockEntity(pos)) instanceof IgneousPlacerBlockEntity) {
+        if (itemStack.hasCustomName() && (blockEntity = world.getBlockEntity(pos)) instanceof IgneousCrafterBlockEntity) {
 //            ((IgneousPlacerBlockEntity)blockEntity).setCustomName(itemStack.getName());
         }
     }
@@ -122,8 +122,8 @@ public class IgneousPlacerBlock extends BlockWithEntity {
             return;
         }
         BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (blockEntity instanceof IgneousPlacerBlockEntity) {
-            ItemScatterer.spawn(world, pos, (IgneousPlacerBlockEntity) blockEntity);
+        if (blockEntity instanceof IgneousCrafterBlockEntity) {
+            ItemScatterer.spawn(world, pos, (IgneousCrafterBlockEntity) blockEntity);
             world.updateComparators(pos, this);
         }
         super.onStateReplaced(state, world, pos, newState, moved);

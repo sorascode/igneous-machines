@@ -8,11 +8,11 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-public class IgneousPlacerScreen extends HandledScreen<IgneousPlacerScreenHandler> {
+public class IgneousCrafterScreen extends HandledScreen<IgneousCrafterScreenHandler> {
     //A path to the gui texture. In this example we use the texture from the dispenser
-    private static final Identifier TEXTURE = new Identifier("igneous-machines", "textures/gui/container/igneous_placer.png");
+    private static final Identifier TEXTURE = new Identifier("igneous-machines", "textures/gui/container/igneous_crafter.png");
 
-    public IgneousPlacerScreen(IgneousPlacerScreenHandler handler, PlayerInventory inventory, Text title) {
+    public IgneousCrafterScreen(IgneousCrafterScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
     }
 

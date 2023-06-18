@@ -6,15 +6,13 @@ import net.minecraft.screen.slot.Slot;
 
 public class BlockSlot
         extends Slot {
-    private final IgneousPlacerScreenHandler handler;
 
-    public BlockSlot(IgneousPlacerScreenHandler handler, Inventory inventory, int index, int x, int y) {
+    public BlockSlot(Inventory inventory, int index, int x, int y) {
         super(inventory, index, x, y);
-        this.handler = handler;
     }
 
     @Override
     public boolean canInsert(ItemStack stack) {
-        return this.handler.isBlock(stack);
+        return ItemStackUtils.isBlock(stack);
     }
 }

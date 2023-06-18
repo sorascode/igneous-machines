@@ -14,12 +14,12 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 
-public class IgneousPlacerBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory {
+public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory {
 
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(10, ItemStack.EMPTY);
 
-    public IgneousPlacerBlockEntity(BlockPos pos, BlockState state) {
-        super(ExampleMod.IGNEOUS_PLACER_BLOCK_ENTITY, pos, state);
+    public IgneousCrafterBlockEntity(BlockPos pos, BlockState state) {
+        super(IgneousMachinesMod.IGNEOUS_CRAFTER_BLOCK_ENTITY, pos, state);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class IgneousPlacerBlockEntity extends BlockEntity implements NamedScreen
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
         //We provide *this* to the screenHandler as our class Implements Inventory
         //Only the Server has the Inventory at the start, this will be synced to the client in the ScreenHandler
-        return new IgneousPlacerScreenHandler(syncId, playerInventory, this);
+        return new IgneousCrafterScreenHandler(syncId, playerInventory, this);
     }
 
     @Override

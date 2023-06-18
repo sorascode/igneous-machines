@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "igneous-machines:igneous_placer"
+          "name": "igneous-machines:igneous_crafter"
         }
       ],
       "conditions": [

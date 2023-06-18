@@ -1,0 +1,14 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "particle": "igneous-machines:block/placeholder_side",
+    "up": "igneous-machines:block/placeholder_side",
+    "down": "igneous-machines:block/placeholder_side",
+    "north": "igneous-machines:block/placeholder_front",
+    "south": "igneous-machines:block/placeholder_side",
+    "west": "igneous-machines:block/placeholder_side",
+    "east": "igneous-machines:block/placeholder_side"
+  }
+}
+
+

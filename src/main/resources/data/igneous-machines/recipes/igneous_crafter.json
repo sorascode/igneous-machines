@@ -2,7 +2,7 @@
     "type": "minecraft:crafting_shaped",
     "pattern": [
         "#R#",
-        "QPQ",
+        "QCQ",
         "#F#"
     ],
     "key": {
@@ -15,7 +15,7 @@
         "Q": {
             "item": "minecraft:quartz"
         },
-        "P": {
+        "C": {
             "item": "minecraft:piston"
         },
         "F": {
@@ -23,7 +23,7 @@
         }
     },
     "result": {
-      "item": "igneous-machines:igneous_placer",
+      "item": "igneous-machines:igneous_crafter",
       "count": 1
     }
 }

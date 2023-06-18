@@ -1,0 +1,26 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "#R#",
+        "QPQ",
+        "###"
+    ],
+    "key": {
+        "#": {
+            "item": "minecraft:cobblestone"
+        },
+        "R": {
+            "item": "minecraft:redstone"
+        },
+        "Q": {
+            "item": "minecraft:quartz"
+        },
+        "P": {
+            "item": "minecraft:piston"
+        }
+    },
+    "result": {
+      "item": "igneous-machines:depositer",
+      "count": 1
+    }
+}

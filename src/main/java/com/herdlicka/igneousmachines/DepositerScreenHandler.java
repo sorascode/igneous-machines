@@ -1,17 +1,15 @@
 package com.herdlicka.igneousmachines;
 
-import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.world.World;
 
-public class IgneousPlacerScreenHandler extends ScreenHandler {
+public class DepositerScreenHandler extends ScreenHandler {
     private final Inventory inventory;
 
     protected final World world;
@@ -19,15 +17,15 @@ public class IgneousPlacerScreenHandler extends ScreenHandler {
     //This constructor gets called on the client when the server wants it to open the screenHandler,
     //The client will call the other constructor with an empty Inventory and the screenHandler will automatically
     //sync this empty inventory with the inventory on the server.
-    public IgneousPlacerScreenHandler(int syncId, PlayerInventory playerInventory) {
-        this(syncId, playerInventory, new SimpleInventory(10));
+    public DepositerScreenHandler(int syncId, PlayerInventory playerInventory) {
+        this(syncId, playerInventory, new SimpleInventory(9));
     }
 
     //This constructor gets called from the BlockEntity on the server without calling the other constructor first, the server knows the inventory of the container
     //and can therefore directly provide it as an argument. This inventory will then be synced to the client.
-    public IgneousPlacerScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
-        super(ExampleMod.IGNEOUS_PLACER_SCREEN_HANDLER, syncId);
-        checkSize(inventory, 10);
+    public DepositerScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
+        super(IgneousMachinesMod.DEPOSITER_SCREEN_HANDLER, syncId);
+        checkSize(inventory, 9);
         this.inventory = inventory;
         this.world = playerInventory.player.getWorld();
         //some inventories do custom logic when a player opens it.
@@ -40,10 +38,9 @@ public class IgneousPlacerScreenHandler extends ScreenHandler {
         //Our inventory
         for (m = 0; m < 3; ++m) {
             for (l = 0; l < 3; ++l) {
-                this.addSlot(new BlockSlot(this, inventory, l + m * 3, 62 + l * 18, 17 + m * 18));
+                this.addSlot(new BlockSlot(inventory, l + m * 3, 62 + l * 18, 17 + m * 18));
             }
         }
-        this.addSlot(new FuelSlot(this, inventory, 9, 24, 41));
 
         //The player inventory
         for (m = 0; m < 3; ++m) {
@@ -76,18 +73,7 @@ public class IgneousPlacerScreenHandler extends ScreenHandler {
                     return ItemStack.EMPTY;
                 }
             } else {
-                if (isFuel(originalStack)) {
-                    if (!this.insertItem(originalStack, 9, 10, false)) {
-                        if (isBlock(originalStack)) {
-                            if (!this.insertItem(originalStack, 0, 9, false)) {
-                                return ItemStack.EMPTY;
-                            }
-                        }
-                        else {
-                            return ItemStack.EMPTY;
-                        }
-                    }
-                } else if (isBlock(originalStack)) {
+                if (ItemStackUtils.isBlock(originalStack)) {
                     if (!this.insertItem(originalStack, 0, 9, false)) {
                         return ItemStack.EMPTY;
                     }
@@ -102,14 +88,6 @@ public class IgneousPlacerScreenHandler extends ScreenHandler {
         }
 
         return newStack;
-    }
-
-    protected boolean isFuel(ItemStack itemStack) {
-        return AbstractFurnaceBlockEntity.canUseAsFuel(itemStack);
-    }
-
-    protected boolean isBlock(ItemStack itemStack) {
-        return itemStack.getItem() instanceof BlockItem;
     }
 }
 

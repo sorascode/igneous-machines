@@ -16,10 +16,10 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.herdlicka.igneousmachines.ExampleMod"
+          "com.herdlicka.igneousmachines.IgneousMachinesMod"
 		],
 		"client": [
-			"com.herdlicka.igneousmachines.ExampleModClient"
+			"com.herdlicka.igneousmachines.IgneousMachinesModClient"
 		]
 	},
 	"mixins": [
