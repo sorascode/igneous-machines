@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 
 public class DepositerScreen extends HandledScreen<DepositerScreenHandler> {
     //A path to the gui texture. In this example we use the texture from the dispenser
-    private static final Identifier TEXTURE = new Identifier("igneous-machines", "textures/gui/container/depositer.png");
+    private static final Identifier TEXTURE = new Identifier("minecraft", "textures/gui/container/dispenser.png");
 
     public DepositerScreen(DepositerScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);

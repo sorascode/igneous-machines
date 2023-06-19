@@ -1,11 +1,9 @@
 package com.herdlicka.igneousmachines;
 
-import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
@@ -40,7 +38,7 @@ public class IgneousCrafterScreenHandler extends ScreenHandler {
         //Our inventory
         for (m = 0; m < 3; ++m) {
             for (l = 0; l < 3; ++l) {
-                this.addSlot(new BlockSlot(inventory, l + m * 3, 62 + l * 18, 17 + m * 18));
+                this.addSlot(new Slot(inventory, l + m * 3, 62 + l * 18, 17 + m * 18));
             }
         }
         this.addSlot(new FuelSlot(inventory, 9, 24, 41));
@@ -76,22 +74,15 @@ public class IgneousCrafterScreenHandler extends ScreenHandler {
                     return ItemStack.EMPTY;
                 }
             } else {
-                if (isFuel(originalStack)) {
+                if (ItemStackUtils.isFuel(originalStack)) {
                     if (!this.insertItem(originalStack, 9, 10, false)) {
-                        if (isBlock(originalStack)) {
-                            if (!this.insertItem(originalStack, 0, 9, false)) {
-                                return ItemStack.EMPTY;
-                            }
-                        }
-                        else {
+                        if (!this.insertItem(originalStack, 0, 9, false)) {
                             return ItemStack.EMPTY;
                         }
                     }
-                } else if (isBlock(originalStack)) {
-                    if (!this.insertItem(originalStack, 0, 9, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else return ItemStack.EMPTY;
+                } else if (!this.insertItem(originalStack, 0, 9, false)) {
+                    return ItemStack.EMPTY;
+                }
             }
 
             if (originalStack.isEmpty()) {
@@ -102,14 +93,6 @@ public class IgneousCrafterScreenHandler extends ScreenHandler {
         }
 
         return newStack;
-    }
-
-    protected boolean isFuel(ItemStack itemStack) {
-        return AbstractFurnaceBlockEntity.canUseAsFuel(itemStack);
-    }
-
-    protected boolean isBlock(ItemStack itemStack) {
-        return itemStack.getItem() instanceof BlockItem;
     }
 }
 
