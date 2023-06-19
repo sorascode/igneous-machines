@@ -4,17 +4,20 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
-import net.minecraft.block.FacingBlock;
-import net.minecraft.block.dispenser.BlockPlacementDispenserBehavior;
-import net.minecraft.block.dispenser.DispenserBehavior;
+import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
@@ -24,26 +27,24 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPointerImpl;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldEvents;
-import net.minecraft.world.event.GameEvent;
+import org.jetbrains.annotations.Nullable;
 
 public class IgneousCrafterBlock extends BlockWithEntity {
-    public static final DirectionProperty FACING = FacingBlock.FACING;
-    public static final BooleanProperty TRIGGERED = Properties.TRIGGERED;
+    public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
+    public static final BooleanProperty LIT = Properties.LIT;
 
     public IgneousCrafterBlock(Settings settings) {
         super(settings);
-        this.setDefaultState(this.stateManager.getDefaultState().with(FACING, Direction.NORTH).with(TRIGGERED, false));
+        this.setDefaultState(this.stateManager.getDefaultState().with(FACING, Direction.NORTH).with(LIT, false));
     }
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(FACING, TRIGGERED);
+        builder.add(FACING, LIT);
     }
 
     @Override
@@ -77,35 +78,8 @@ public class IgneousCrafterBlock extends BlockWithEntity {
         return ActionResult.SUCCESS;
     }
 
-    protected void place(ServerWorld world, BlockPos pos) {
-        BlockPointerImpl blockPointerImpl = new BlockPointerImpl(world, pos);
-        IgneousCrafterBlockEntity blockEntity = blockPointerImpl.getBlockEntity();
-        int i = blockEntity.chooseNonEmptySlot(world.random);
-        if (i < 0) {
-            world.syncWorldEvent(WorldEvents.DISPENSER_FAILS, pos, 0);
-            world.emitGameEvent(GameEvent.BLOCK_ACTIVATE, pos, GameEvent.Emitter.of(blockEntity.getCachedState()));
-            return;
-        }
-        ItemStack itemStack = blockEntity.getStack(i);
-        DispenserBehavior dispenserBehavior = new BlockPlacementDispenserBehavior();
-        blockEntity.setStack(i, dispenserBehavior.dispense(blockPointerImpl, itemStack));
-    }
-
-    @Override
-    public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
-        boolean bl = world.isReceivingRedstonePower(pos) || world.isReceivingRedstonePower(pos.up());
-        boolean bl2 = state.get(TRIGGERED);
-        if (bl && !bl2) {
-            world.scheduleBlockTick(pos, this, 4);
-            world.setBlockState(pos, state.with(TRIGGERED, true), Block.NO_REDRAW);
-        } else if (!bl && bl2) {
-            world.setBlockState(pos, state.with(TRIGGERED, false), Block.NO_REDRAW);
-        }
-    }
-
     @Override
     public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-        this.place(world, pos);
     }
 
 
@@ -113,7 +87,7 @@ public class IgneousCrafterBlock extends BlockWithEntity {
     public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
         BlockEntity blockEntity;
         if (itemStack.hasCustomName() && (blockEntity = world.getBlockEntity(pos)) instanceof IgneousCrafterBlockEntity) {
-//            ((IgneousPlacerBlockEntity)blockEntity).setCustomName(itemStack.getName());
+//            ((IgneousCrafterBlockEntity)blockEntity).setCustomName(itemStack.getName());
         }
     }
 
@@ -124,7 +98,7 @@ public class IgneousCrafterBlock extends BlockWithEntity {
         }
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof IgneousCrafterBlockEntity) {
-            var entity = DefaultedList.copyOf(ItemStack.EMPTY, ((IgneousCrafterBlockEntity) blockEntity).getItems().subList(9, 10).toArray(new ItemStack[0]));
+            var entity = DefaultedList.copyOf(ItemStack.EMPTY, ((IgneousCrafterBlockEntity) blockEntity).getItems().subList(9, 29).toArray(new ItemStack[0]));
             ItemScatterer.spawn(world, pos, entity);
             world.updateComparators(pos, this);
         }
@@ -139,5 +113,38 @@ public class IgneousCrafterBlock extends BlockWithEntity {
     @Override
     public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
         return ScreenHandler.calculateComparatorOutput(world.getBlockEntity(pos));
+    }
+
+    @Override
+    public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
+        if (!state.get(LIT)) {
+            return;
+        }
+        double d = (double)pos.getX() + 0.5;
+        double e = pos.getY();
+        double f = (double)pos.getZ() + 0.5;
+        if (random.nextDouble() < 0.1) {
+            world.playSound(d, e, f, SoundEvents.BLOCK_FURNACE_FIRE_CRACKLE, SoundCategory.BLOCKS, 1.0f, 1.0f, false);
+        }
+        Direction direction = state.get(FACING);
+        Direction.Axis axis = direction.getAxis();
+        double g = 0.52;
+        double h = random.nextDouble() * 0.6 - 0.3;
+        double i = axis == Direction.Axis.X ? (double)direction.getOffsetX() * 0.52 : h;
+        double j = random.nextDouble() * 6.0 / 16.0;
+        double k = axis == Direction.Axis.Z ? (double)direction.getOffsetZ() * 0.52 : h;
+        world.addParticle(ParticleTypes.SMOKE, d + i, e + j, f + k, 0.0, 0.0, 0.0);
+        world.addParticle(ParticleTypes.FLAME, d + i, e + j, f + k, 0.0, 0.0, 0.0);
+    }
+
+    @Override
+    @Nullable
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+        return checkType(world, type, IgneousMachinesMod.IGNEOUS_CRAFTER_BLOCK_ENTITY);
+    }
+
+    @Nullable
+    protected static <T extends BlockEntity> BlockEntityTicker<T> checkType(World world, BlockEntityType<T> givenType, BlockEntityType<? extends IgneousCrafterBlockEntity> expectedType) {
+        return world.isClient ? null : checkType(givenType, expectedType, IgneousCrafterBlockEntity::tick);
     }
 }

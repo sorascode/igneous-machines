@@ -5,31 +5,38 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandler;
+import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeInputProvider;
+import net.minecraft.recipe.RecipeMatcher;
+import net.minecraft.recipe.book.RecipeBookCategory;
+import net.minecraft.screen.AbstractRecipeScreenHandler;
+import net.minecraft.screen.ArrayPropertyDelegate;
+import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.world.World;
 
-public class IgneousCrafterScreenHandler extends ScreenHandler {
+public class IgneousCrafterScreenHandler extends AbstractRecipeScreenHandler<Inventory> {
+
     private final Inventory inventory;
+    private final PlayerEntity player;
 
-    protected final World world;
+    private final PropertyDelegate propertyDelegate;
 
     //This constructor gets called on the client when the server wants it to open the screenHandler,
     //The client will call the other constructor with an empty Inventory and the screenHandler will automatically
     //sync this empty inventory with the inventory on the server.
     public IgneousCrafterScreenHandler(int syncId, PlayerInventory playerInventory) {
-        this(syncId, playerInventory, new SimpleInventory(29));
+        this(syncId, playerInventory, new SimpleInventory(29), new ArrayPropertyDelegate(4));
     }
 
     //This constructor gets called from the BlockEntity on the server without calling the other constructor first, the server knows the inventory of the container
     //and can therefore directly provide it as an argument. This inventory will then be synced to the client.
-    public IgneousCrafterScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
+    public IgneousCrafterScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory, PropertyDelegate propertyDelegate) {
         super(IgneousMachinesMod.IGNEOUS_CRAFTER_SCREEN_HANDLER, syncId);
         checkSize(inventory, 29);
         this.inventory = inventory;
-        this.world = playerInventory.player.getWorld();
-        //some inventories do custom logic when a player opens it.
-        inventory.onOpen(playerInventory.player);
+        this.player = playerInventory.player;
+
+        this.propertyDelegate = propertyDelegate;
 
         int m;
         int l;
@@ -40,7 +47,7 @@ public class IgneousCrafterScreenHandler extends ScreenHandler {
             }
         }
         this.addSlot(new FuelSlot(inventory, 9, 13, 41));
-        this.addSlot(new NoInsertSlot(inventory, 10, 138, 35));
+        this.addSlot(new IgnouesCrafterOutputSlot(inventory, 10, 138, 35));
 
         for (m = 0; m < 2; ++m) {
             for (l = 0; l < 9; ++l) {
@@ -59,6 +66,7 @@ public class IgneousCrafterScreenHandler extends ScreenHandler {
             this.addSlot(new Slot(playerInventory, m, 8 + m * 18, 197));
         }
 
+        this.addProperties(propertyDelegate);
     }
 
     @Override
@@ -101,6 +109,74 @@ public class IgneousCrafterScreenHandler extends ScreenHandler {
         }
 
         return newStack;
+    }
+
+    @Override
+    public void populateRecipeFinder(RecipeMatcher finder) {
+        if (this.inventory instanceof RecipeInputProvider) {
+            ((RecipeInputProvider) this.inventory).provideRecipeInputs(finder);
+        }
+    }
+
+    @Override
+    public void clearCraftingSlots() {
+
+    }
+
+    @Override
+    public boolean matches(Recipe recipe) {
+        return recipe.matches(this.inventory, this.player.getWorld());
+    }
+
+    @Override
+    public int getCraftingResultSlotIndex() {
+        return 10;
+    }
+
+    @Override
+    public int getCraftingWidth() {
+        return 3;
+    }
+
+    @Override
+    public int getCraftingHeight() {
+        return 3;
+    }
+
+    @Override
+    public int getCraftingSlotCount() {
+        return 10;
+    }
+
+    @Override
+    public RecipeBookCategory getCategory() {
+        return RecipeBookCategory.CRAFTING;
+    }
+
+    @Override
+    public boolean canInsertIntoSlot(int index) {
+        return index != this.getCraftingResultSlotIndex();
+    }
+
+    public int getCraftProgress() {
+        int i = this.propertyDelegate.get(2);
+        int j = this.propertyDelegate.get(3);
+        if (j == 0 || i == 0) {
+            return 0;
+        }
+        return i * 24 / j;
+    }
+
+    public int getFuelProgress() {
+        int i = this.propertyDelegate.get(1);
+        if (i == 0) {
+            i = 200;
+        }
+        return this.propertyDelegate.get(0) * 13 / i;
+    }
+
+    public boolean isBurning() {
+        return this.propertyDelegate.get(0) > 0;
     }
 }
 
