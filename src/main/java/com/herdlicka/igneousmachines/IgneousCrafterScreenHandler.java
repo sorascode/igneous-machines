@@ -18,40 +18,45 @@ public class IgneousCrafterScreenHandler extends ScreenHandler {
     //The client will call the other constructor with an empty Inventory and the screenHandler will automatically
     //sync this empty inventory with the inventory on the server.
     public IgneousCrafterScreenHandler(int syncId, PlayerInventory playerInventory) {
-        this(syncId, playerInventory, new SimpleInventory(10));
+        this(syncId, playerInventory, new SimpleInventory(29));
     }
 
     //This constructor gets called from the BlockEntity on the server without calling the other constructor first, the server knows the inventory of the container
     //and can therefore directly provide it as an argument. This inventory will then be synced to the client.
     public IgneousCrafterScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
         super(IgneousMachinesMod.IGNEOUS_CRAFTER_SCREEN_HANDLER, syncId);
-        checkSize(inventory, 10);
+        checkSize(inventory, 29);
         this.inventory = inventory;
         this.world = playerInventory.player.getWorld();
         //some inventories do custom logic when a player opens it.
         inventory.onOpen(playerInventory.player);
 
-        //This will place the slot in the correct locations for a 3x3 Grid. The slots exist on both server and client!
-        //This will not render the background of the slots however, this is the Screens job
         int m;
         int l;
         //Our inventory
         for (m = 0; m < 3; ++m) {
             for (l = 0; l < 3; ++l) {
-                this.addSlot(new TemplateSlot(inventory, l + m * 3, 62 + l * 18, 17 + m * 18));
+                this.addSlot(new TemplateSlot(inventory, l + m * 3, 44 + l * 18, 17 + m * 18));
             }
         }
-        this.addSlot(new FuelSlot(inventory, 9, 24, 41));
+        this.addSlot(new FuelSlot(inventory, 9, 13, 41));
+        this.addSlot(new NoInsertSlot(inventory, 10, 138, 35));
+
+        for (m = 0; m < 2; ++m) {
+            for (l = 0; l < 9; ++l) {
+                this.addSlot(new Slot(inventory, l + m * 9 + 11, 8 + l * 18, 89 + m * 18));
+            }
+        }
 
         //The player inventory
         for (m = 0; m < 3; ++m) {
             for (l = 0; l < 9; ++l) {
-                this.addSlot(new Slot(playerInventory, l + m * 9 + 9, 8 + l * 18, 84 + m * 18));
+                this.addSlot(new Slot(playerInventory, l + m * 9 + 9, 8 + l * 18, 139 + m * 18));
             }
         }
         //The player Hotbar
         for (m = 0; m < 9; ++m) {
-            this.addSlot(new Slot(playerInventory, m, 8 + m * 18, 142));
+            this.addSlot(new Slot(playerInventory, m, 8 + m * 18, 197));
         }
 
     }
@@ -79,11 +84,11 @@ public class IgneousCrafterScreenHandler extends ScreenHandler {
             } else {
                 if (ItemStackUtils.isFuel(originalStack)) {
                     if (!this.insertItem(originalStack, 9, 10, false)) {
-//                        if (!this.insertItem(originalStack, 0, 9, false)) {
-                        return ItemStack.EMPTY;
-//                        }
+                        if (!this.insertItem(originalStack, 11, 29, false)) {
+                            return ItemStack.EMPTY;
+                        }
                     }
-                } else {//if (!this.insertItem(originalStack, 0, 9, false)) {
+                } else if (!this.insertItem(originalStack, 11, 29, false)) {
                     return ItemStack.EMPTY;
                 }
             }

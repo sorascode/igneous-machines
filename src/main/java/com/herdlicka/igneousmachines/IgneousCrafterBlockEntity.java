@@ -19,10 +19,10 @@ import org.jetbrains.annotations.Nullable;
 
 public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory, SidedInventory {
 
-    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(10, ItemStack.EMPTY);
+    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(29, ItemStack.EMPTY);
 
-    private static final int[] TOP_SLOTS = new int[]{};
-    private static final int[] BOTTOM_SLOTS = new int[]{};
+    private static final int[] TOP_SLOTS = new int[]{11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28};
+    private static final int[] BOTTOM_SLOTS = new int[]{10};
     private static final int[] SIDE_SLOTS = new int[]{9};
 
     public IgneousCrafterBlockEntity(BlockPos pos, BlockState state) {
@@ -87,11 +87,19 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
         if (slot == 9) {
             return ItemStackUtils.isFuel(stack);
         }
+        else if (slot > 10 && slot <= 28) {
+            return true;
+        }
+
         return false;
     }
 
     @Override
     public boolean canExtract(int slot, ItemStack stack, Direction dir) {
+        if (slot == 10) {
+            return true;
+        }
+
         return false;
     }
 }
