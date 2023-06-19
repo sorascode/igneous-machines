@@ -1,11 +1,27 @@
 {
   "variants": {
-    "facing=north": { "model": "igneous-machines:block/depositer" },
-    "facing=east":  { "model": "igneous-machines:block/depositer", "y":  90 },
-    "facing=south": { "model": "igneous-machines:block/depositer", "y": 180 },
-    "facing=west":  { "model": "igneous-machines:block/depositer", "y": 270 },
-    "facing=up": { "model": "igneous-machines:block/depositer_up" },
-    "facing=down": { "model": "igneous-machines:block/depositer_down" }
+    "facing=north": {
+      "model": "igneous-machines:block/depositer"
+    },
+    "facing=east": {
+      "model": "igneous-machines:block/depositer",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "igneous-machines:block/depositer",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "igneous-machines:block/depositer",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "igneous-machines:block/depositer_vertical"
+    },
+    "facing=down": {
+      "model": "igneous-machines:block/depositer_vertical",
+      "x": 180
+    }
   }
 }
 

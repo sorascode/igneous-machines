@@ -1,22 +1,19 @@
 {
     "type": "minecraft:crafting_shaped",
     "pattern": [
-        "#R#",
-        "QPQ",
-        "###"
+        "###",
+        "#P#",
+        "#R#"
     ],
     "key": {
         "#": {
             "item": "minecraft:cobblestone"
         },
-        "R": {
-            "item": "minecraft:redstone"
-        },
-        "Q": {
-            "item": "minecraft:quartz"
-        },
         "P": {
             "item": "minecraft:piston"
+        },
+        "R": {
+            "item": "minecraft:redstone"
         }
     },
     "result": {

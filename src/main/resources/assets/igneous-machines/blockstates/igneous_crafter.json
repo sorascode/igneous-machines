@@ -1,9 +1,20 @@
 {
   "variants": {
-    "facing=north": { "model": "igneous-machines:block/igneous_crafter" },
-    "facing=east":  { "model": "igneous-machines:block/igneous_crafter", "y":  90 },
-    "facing=south": { "model": "igneous-machines:block/igneous_crafter", "y": 180 },
-    "facing=west":  { "model": "igneous-machines:block/igneous_crafter", "y": 270 }
+    "facing=north": {
+      "model": "igneous-machines:block/igneous_crafter"
+    },
+    "facing=east": {
+      "model": "igneous-machines:block/igneous_crafter",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "igneous-machines:block/igneous_crafter",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "igneous-machines:block/igneous_crafter",
+      "y": 270
+    }
   }
 }
 

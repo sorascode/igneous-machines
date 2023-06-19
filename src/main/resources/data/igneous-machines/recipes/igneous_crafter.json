@@ -1,7 +1,7 @@
 {
     "type": "minecraft:crafting_shaped",
     "pattern": [
-        "#R#",
+        "#D#",
         "QCQ",
         "#F#"
     ],
@@ -9,14 +9,14 @@
         "#": {
             "item": "minecraft:cobblestone"
         },
-        "R": {
-            "item": "minecraft:redstone"
+        "D": {
+            "item": "minecraft:diamond"
         },
         "Q": {
             "item": "minecraft:quartz"
         },
         "C": {
-            "item": "minecraft:piston"
+            "item": "minecraft:crafting_table"
         },
         "F": {
             "item": "minecraft:furnace"
