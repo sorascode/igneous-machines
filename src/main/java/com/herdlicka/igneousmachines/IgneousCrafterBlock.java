@@ -22,6 +22,7 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPointerImpl;
 import net.minecraft.util.math.BlockPos;
@@ -123,7 +124,8 @@ public class IgneousCrafterBlock extends BlockWithEntity {
         }
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof IgneousCrafterBlockEntity) {
-            ItemScatterer.spawn(world, pos, (IgneousCrafterBlockEntity) blockEntity);
+            var entity = DefaultedList.copyOf(ItemStack.EMPTY, ((IgneousCrafterBlockEntity) blockEntity).getItems().subList(9, 10).toArray(new ItemStack[0]));
+            ItemScatterer.spawn(world, pos, entity);
             world.updateComparators(pos, this);
         }
         super.onStateReplaced(state, world, pos, newState, moved);

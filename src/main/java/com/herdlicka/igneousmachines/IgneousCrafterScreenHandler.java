@@ -38,7 +38,7 @@ public class IgneousCrafterScreenHandler extends ScreenHandler {
         //Our inventory
         for (m = 0; m < 3; ++m) {
             for (l = 0; l < 3; ++l) {
-                this.addSlot(new Slot(inventory, l + m * 3, 62 + l * 18, 17 + m * 18));
+                this.addSlot(new TemplateSlot(inventory, l + m * 3, 62 + l * 18, 17 + m * 18));
             }
         }
         this.addSlot(new FuelSlot(inventory, 9, 24, 41));
@@ -70,17 +70,20 @@ public class IgneousCrafterScreenHandler extends ScreenHandler {
             ItemStack originalStack = slot.getStack();
             newStack = originalStack.copy();
             if (invSlot < this.inventory.size()) {
-                if (!this.insertItem(originalStack, this.inventory.size(), this.slots.size(), true)) {
+                if (invSlot < 9) {
+                    originalStack.setCount(0);
+                    newStack = ItemStack.EMPTY;
+                } else if (!this.insertItem(originalStack, this.inventory.size(), this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
             } else {
                 if (ItemStackUtils.isFuel(originalStack)) {
                     if (!this.insertItem(originalStack, 9, 10, false)) {
-                        if (!this.insertItem(originalStack, 0, 9, false)) {
-                            return ItemStack.EMPTY;
-                        }
+//                        if (!this.insertItem(originalStack, 0, 9, false)) {
+                        return ItemStack.EMPTY;
+//                        }
                     }
-                } else if (!this.insertItem(originalStack, 0, 9, false)) {
+                } else {//if (!this.insertItem(originalStack, 0, 9, false)) {
                     return ItemStack.EMPTY;
                 }
             }
