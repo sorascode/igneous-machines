@@ -49,7 +49,8 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
     public static final int CRAFT_TIME_PROPERTY_INDEX = 2;
     public static final int CRAFT_TIME_TOTAL_PROPERTY_INDEX = 3;
     public static final int PROPERTY_COUNT = 4;
-    public static final int DEFAULT_CRAFT_TIME = 50;
+    public static final int DEFAULT_CRAFT_TIME = 80;
+    public static final float FUEL_MULTIPLIER = 0.5f;
     int burnTime;
     int fuelTime;
     int craftTime;
@@ -125,7 +126,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
             return 0;
         }
         Item item = fuel.getItem();
-        return AbstractFurnaceBlockEntity.createFuelTimeMap().getOrDefault(item, 0);
+        return (int) (AbstractFurnaceBlockEntity.createFuelTimeMap().getOrDefault(item, 0) * FUEL_MULTIPLIER);
     }
 
     private static int getCraftTime() {
@@ -229,6 +230,12 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
         if (recipe == null) {
             return false;
         }
+
+        ItemStack resultStack = recipe.getOutput(registryManager);
+        if (resultStack.isEmpty()) {
+            return false;
+        }
+
         var foundSlots = new ArrayList<ItemStack>();
         for (Ingredient ingredient : recipe.getIngredients()) {
             if (ingredient.getMatchingStacks().length == 0) {
@@ -257,21 +264,17 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
             foundSlot.increment(1);
         }
 
-        ItemStack itemStack = recipe.getOutput(registryManager);
-        if (itemStack.isEmpty()) {
-            return false;
-        }
-        ItemStack itemStack2 = slots.get(10);
-        if (itemStack2.isEmpty()) {
+        ItemStack outputSlotStack = slots.get(10);
+        if (outputSlotStack.isEmpty()) {
             return true;
         }
-        if (!ItemStack.areItemsEqual(itemStack2, itemStack)) {
+        if (!ItemStack.areItemsEqual(outputSlotStack, resultStack)) {
             return false;
         }
-        if (itemStack2.getCount() < count && itemStack2.getCount() < itemStack2.getMaxCount()) {
+        if (outputSlotStack.getCount() + resultStack.getCount()  <= count && outputSlotStack.getCount() + resultStack.getCount() <= outputSlotStack.getMaxCount()) {
             return true;
         }
-        return itemStack2.getCount() < itemStack.getMaxCount();
+        return false;
     }
 
     private static boolean craftRecipe(DynamicRegistryManager registryManager, @Nullable Recipe<?> recipe, DefaultedList<ItemStack> slots, int count) {
