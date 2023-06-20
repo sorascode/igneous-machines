@@ -1,13 +1,13 @@
 {
   "parent": "block/cube",
   "textures": {
-    "particle": "minecraft:block/furnace_side",
-    "up": "minecraft:block/crafting_table_top",
+    "particle": "igneous-machines:block/igneous_crafter_side",
+    "up": "igneous-machines:block/igneous_crafter_top",
     "down": "minecraft:block/furnace_top",
-    "north": "minecraft:block/furnace_front",
-    "south": "minecraft:block/furnace_side",
-    "west": "minecraft:block/furnace_side",
-    "east": "minecraft:block/furnace_side"
+    "north": "igneous-machines:block/igneous_crafter_front",
+    "south": "igneous-machines:block/igneous_crafter_side",
+    "west": "igneous-machines:block/igneous_crafter_side",
+    "east": "igneous-machines:block/igneous_crafter_side"
   }
 }
 
