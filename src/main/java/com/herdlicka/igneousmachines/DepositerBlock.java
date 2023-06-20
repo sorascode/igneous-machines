@@ -5,7 +5,6 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.FacingBlock;
-import net.minecraft.block.dispenser.BlockPlacementDispenserBehavior;
 import net.minecraft.block.dispenser.DispenserBehavior;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
@@ -86,7 +85,7 @@ public class DepositerBlock extends BlockWithEntity {
             return;
         }
         ItemStack itemStack = blockEntity.getStack(i);
-        DispenserBehavior dispenserBehavior = new BlockPlacementDispenserBehavior();
+        DispenserBehavior dispenserBehavior = new DepositingDispenserBehavior();
         blockEntity.setStack(i, dispenserBehavior.dispense(blockPointerImpl, itemStack));
     }
 
