@@ -12,6 +12,7 @@ import net.minecraft.recipe.book.RecipeBookCategory;
 import net.minecraft.screen.AbstractRecipeScreenHandler;
 import net.minecraft.screen.ArrayPropertyDelegate;
 import net.minecraft.screen.PropertyDelegate;
+import net.minecraft.screen.slot.FurnaceOutputSlot;
 import net.minecraft.screen.slot.Slot;
 
 public class IgneousCrafterScreenHandler extends AbstractRecipeScreenHandler<Inventory> {
@@ -41,13 +42,13 @@ public class IgneousCrafterScreenHandler extends AbstractRecipeScreenHandler<Inv
         int m;
         int l;
         //Our inventory
+        this.addSlot(new FurnaceOutputSlot(player, inventory, 10, 138, 35));
         for (m = 0; m < 3; ++m) {
             for (l = 0; l < 3; ++l) {
                 this.addSlot(new TemplateSlot(inventory, l + m * 3, 44 + l * 18, 17 + m * 18));
             }
         }
         this.addSlot(new FuelSlot(inventory, 9, 13, 41));
-        this.addSlot(new IgnouesCrafterOutputSlot(inventory, 10, 138, 35));
 
         for (m = 0; m < 2; ++m) {
             for (l = 0; l < 9; ++l) {
@@ -83,15 +84,12 @@ public class IgneousCrafterScreenHandler extends AbstractRecipeScreenHandler<Inv
             ItemStack originalStack = slot.getStack();
             newStack = originalStack.copy();
             if (invSlot < this.inventory.size()) {
-                if (invSlot < 9) {
-                    originalStack.setCount(0);
-                    newStack = ItemStack.EMPTY;
-                } else if (!this.insertItem(originalStack, this.inventory.size(), this.slots.size(), true)) {
+                if (!this.insertItem(originalStack, this.inventory.size(), this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
             } else {
                 if (ItemStackUtils.isFuel(originalStack)) {
-                    if (!this.insertItem(originalStack, 9, 10, false)) {
+                    if (!this.insertItem(originalStack, 10, 11, false)) {
                         if (!this.insertItem(originalStack, 11, 29, false)) {
                             return ItemStack.EMPTY;
                         }
@@ -130,7 +128,7 @@ public class IgneousCrafterScreenHandler extends AbstractRecipeScreenHandler<Inv
 
     @Override
     public int getCraftingResultSlotIndex() {
-        return 10;
+        return 0;
     }
 
     @Override

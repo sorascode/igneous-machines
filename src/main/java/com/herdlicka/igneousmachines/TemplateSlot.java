@@ -14,19 +14,4 @@ public class TemplateSlot
     public int getMaxItemCount(ItemStack stack) {
         return 1;
     }
-
-    @Override
-    public ItemStack insertStack(ItemStack stack, int count) {
-        if (stack.isEmpty() || !this.canInsert(stack)) {
-            return stack;
-        }
-        this.setStack(stack.copyWithCount(1));
-        return stack;
-    }
-
-    @Override
-    public ItemStack takeStack(int amount) {
-        super.takeStack(amount);
-        return ItemStack.EMPTY;
-    }
 }

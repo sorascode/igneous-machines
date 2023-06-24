@@ -25,7 +25,6 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
-import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -98,8 +97,7 @@ public class IgneousCrafterBlock extends BlockWithEntity {
         }
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof IgneousCrafterBlockEntity) {
-            var entity = DefaultedList.copyOf(ItemStack.EMPTY, ((IgneousCrafterBlockEntity) blockEntity).getItems().subList(9, 29).toArray(new ItemStack[0]));
-            ItemScatterer.spawn(world, pos, entity);
+            ItemScatterer.spawn(world, pos, ((IgneousCrafterBlockEntity) blockEntity));
             world.updateComparators(pos, this);
         }
         super.onStateReplaced(state, world, pos, newState, moved);
