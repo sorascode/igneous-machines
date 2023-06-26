@@ -1,5 +1,6 @@
-package com.herdlicka.igneousmachines;
+package com.herdlicka.igneousmachines.gui.screen.ingame;
 
+import com.herdlicka.igneousmachines.screen.DepositerScreenHandler;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.entity.player.PlayerInventory;

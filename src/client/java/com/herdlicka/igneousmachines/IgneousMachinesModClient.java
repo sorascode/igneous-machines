@@ -1,5 +1,7 @@
 package com.herdlicka.igneousmachines;
 
+import com.herdlicka.igneousmachines.gui.screen.ingame.DepositerScreen;
+import com.herdlicka.igneousmachines.gui.screen.ingame.IgneousCrafterScreen;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

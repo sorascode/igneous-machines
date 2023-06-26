@@ -1,4 +1,4 @@
-package com.herdlicka.igneousmachines;
+package com.herdlicka.igneousmachines.util;
 
 import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.item.BlockItem;

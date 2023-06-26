@@ -1,7 +1,7 @@
 
 package com.herdlicka.igneousmachines.mixin;
 
-import com.herdlicka.igneousmachines.IgneousCrafterBlockEntity;
+import com.herdlicka.igneousmachines.block.entity.IgneousCrafterBlockEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;

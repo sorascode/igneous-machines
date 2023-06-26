@@ -1,5 +1,10 @@
-package com.herdlicka.igneousmachines;
+package com.herdlicka.igneousmachines.block.entity;
 
+import com.herdlicka.igneousmachines.IgneousMachinesMod;
+import com.herdlicka.igneousmachines.ImplementedInventory;
+import com.herdlicka.igneousmachines.block.IgneousCrafterBlock;
+import com.herdlicka.igneousmachines.screen.IgneousCrafterScreenHandler;
+import com.herdlicka.igneousmachines.util.ItemStackUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

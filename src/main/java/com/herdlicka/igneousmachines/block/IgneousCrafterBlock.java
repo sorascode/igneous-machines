@@ -1,5 +1,7 @@
-package com.herdlicka.igneousmachines;
+package com.herdlicka.igneousmachines.block;
 
+import com.herdlicka.igneousmachines.block.entity.IgneousCrafterBlockEntity;
+import com.herdlicka.igneousmachines.IgneousMachinesMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;

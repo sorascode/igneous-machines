@@ -1,5 +1,9 @@
-package com.herdlicka.igneousmachines;
+package com.herdlicka.igneousmachines.screen;
 
+import com.herdlicka.igneousmachines.IgneousMachinesMod;
+import com.herdlicka.igneousmachines.util.ItemStackUtils;
+import com.herdlicka.igneousmachines.slot.TemplateSlot;
+import com.herdlicka.igneousmachines.slot.FuelSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;

@@ -1,4 +1,4 @@
-package com.herdlicka.igneousmachines;
+package com.herdlicka.igneousmachines.block.dispenser;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.block.DispenserBlock;

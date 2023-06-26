@@ -1,5 +1,11 @@
 package com.herdlicka.igneousmachines;
 
+import com.herdlicka.igneousmachines.block.DepositerBlock;
+import com.herdlicka.igneousmachines.block.IgneousCrafterBlock;
+import com.herdlicka.igneousmachines.block.entity.DepositerBlockEntity;
+import com.herdlicka.igneousmachines.block.entity.IgneousCrafterBlockEntity;
+import com.herdlicka.igneousmachines.screen.DepositerScreenHandler;
+import com.herdlicka.igneousmachines.screen.IgneousCrafterScreenHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;

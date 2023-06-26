@@ -1,5 +1,6 @@
-package com.herdlicka.igneousmachines;
+package com.herdlicka.igneousmachines.slot;
 
+import com.herdlicka.igneousmachines.util.ItemStackUtils;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;

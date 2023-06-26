@@ -1,5 +1,6 @@
-package com.herdlicka.igneousmachines;
+package com.herdlicka.igneousmachines.gui.screen.ingame;
 
+import com.herdlicka.igneousmachines.screen.IgneousCrafterScreenHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
