@@ -3,7 +3,7 @@
 	"package": "com.herdlicka.igneousmachines.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-		"ExampleMixin"
+		"IgneousCrafterBlockEntityMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -222,7 +222,14 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
             world.setBlockState(pos, state, Block.NOTIFY_ALL);
         }
         if (stateChanged) {
-            AbstractFurnaceBlockEntity.markDirty(world, pos, state);
+            markDirty(world, pos, state);
+        }
+    }
+
+    protected static void markDirty(World world, BlockPos pos, BlockState state) {
+        world.markDirty(pos);
+        if (!state.isAir()) {
+            world.updateComparators(pos, state.getBlock());
         }
     }
 
