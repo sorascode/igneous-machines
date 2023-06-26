@@ -1,0 +1,14 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "particle": "minecraft:block/furnace_side",
+    "up": "minecraft:block/furnace_top",
+    "down": "minecraft:block/furnace_top",
+    "north": "igneous-machines:block/depositer_front",
+    "south": "minecraft:block/furnace_side",
+    "west": "minecraft:block/furnace_side",
+    "east": "minecraft:block/furnace_side"
+  }
+}
+
+

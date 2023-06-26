@@ -2,7 +2,8 @@
   "replace": false,
   "values": [
     "igneous-machines:depositer",
-    "igneous-machines:igneous_crafter"
+    "igneous-machines:igneous_crafter",
+    "igneous-machines:igneous_miner"
   ]
 }
 

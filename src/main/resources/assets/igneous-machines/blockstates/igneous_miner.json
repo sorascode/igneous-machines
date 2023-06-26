@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "igneous-machines:block/igneous_miner"
+    },
+    "facing=east": {
+      "model": "igneous-machines:block/igneous_miner",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "igneous-machines:block/igneous_miner",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "igneous-machines:block/igneous_miner",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "igneous-machines:block/igneous_miner_vertical"
+    },
+    "facing=down": {
+      "model": "igneous-machines:block/igneous_miner_vertical",
+      "x": 180
+    }
+  }
+}
+

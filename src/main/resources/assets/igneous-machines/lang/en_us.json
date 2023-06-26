@@ -1,5 +1,6 @@
 {
   "block.igneous-machines.depositer": "Depositer",
   "block.igneous-machines.igneous_crafter": "Igneous Crafter",
-  "block.igneous-machines.igneous_crafter.inventory": "Crafting Inventory"
+  "block.igneous-machines.igneous_crafter.inventory": "Crafting Inventory",
+  "block.igneous-machines.igneous_miner": "Igneous Miner"
 }
