@@ -1,4 +1,4 @@
-package com.herdlicka.igneousmachines;
+package com.herdlicka.igneousmachines.inventory;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;

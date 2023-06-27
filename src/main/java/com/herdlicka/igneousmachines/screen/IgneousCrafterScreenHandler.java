@@ -43,6 +43,8 @@ public class IgneousCrafterScreenHandler extends AbstractRecipeScreenHandler<Inv
 
         this.propertyDelegate = propertyDelegate;
 
+        inventory.onOpen(playerInventory.player);
+
         int m;
         int l;
         //Our inventory

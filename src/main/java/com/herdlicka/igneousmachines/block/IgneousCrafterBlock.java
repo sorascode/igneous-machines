@@ -1,7 +1,7 @@
 package com.herdlicka.igneousmachines.block;
 
-import com.herdlicka.igneousmachines.block.entity.IgneousCrafterBlockEntity;
 import com.herdlicka.igneousmachines.IgneousMachinesMod;
+import com.herdlicka.igneousmachines.block.entity.IgneousCrafterBlockEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -17,7 +17,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
@@ -77,10 +76,6 @@ public class IgneousCrafterBlock extends BlockWithEntity {
             }
         }
         return ActionResult.SUCCESS;
-    }
-
-    @Override
-    public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
     }
 
 

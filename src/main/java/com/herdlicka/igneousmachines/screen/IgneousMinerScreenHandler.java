@@ -1,50 +1,56 @@
 package com.herdlicka.igneousmachines.screen;
 
 import com.herdlicka.igneousmachines.IgneousMachinesMod;
-import com.herdlicka.igneousmachines.slot.BlockSlot;
+import com.herdlicka.igneousmachines.slot.FuelSlot;
+import com.herdlicka.igneousmachines.slot.OutputSlot;
+import com.herdlicka.igneousmachines.slot.ToolSlot;
 import com.herdlicka.igneousmachines.util.ItemStackUtils;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.screen.ArrayPropertyDelegate;
+import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
-import net.minecraft.world.World;
 
 public class IgneousMinerScreenHandler extends ScreenHandler {
 
     private final Inventory inventory;
+    private final PlayerEntity player;
 
-    protected final World world;
+    private final PropertyDelegate propertyDelegate;
 
     //This constructor gets called on the client when the server wants it to open the screenHandler,
     //The client will call the other constructor with an empty Inventory and the screenHandler will automatically
     //sync this empty inventory with the inventory on the server.
     public IgneousMinerScreenHandler(int syncId, PlayerInventory playerInventory) {
-        this(syncId, playerInventory, new SimpleInventory(9));
+        this(syncId, playerInventory, new SimpleInventory(11), new ArrayPropertyDelegate(4));
     }
 
     //This constructor gets called from the BlockEntity on the server without calling the other constructor first, the server knows the inventory of the container
     //and can therefore directly provide it as an argument. This inventory will then be synced to the client.
-    public IgneousMinerScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
+    public IgneousMinerScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory, PropertyDelegate propertyDelegate) {
         super(IgneousMachinesMod.IGNEOUS_MINER_SCREEN_HANDLER, syncId);
-        checkSize(inventory, 9);
+        checkSize(inventory, 11);
         this.inventory = inventory;
-        this.world = playerInventory.player.getWorld();
-        //some inventories do custom logic when a player opens it.
+        this.player = playerInventory.player;
+
+        this.propertyDelegate = propertyDelegate;
+
         inventory.onOpen(playerInventory.player);
 
-        //This will place the slot in the correct locations for a 3x3 Grid. The slots exist on both server and client!
-        //This will not render the background of the slots however, this is the Screens job
         int m;
         int l;
         //Our inventory
         for (m = 0; m < 3; ++m) {
             for (l = 0; l < 3; ++l) {
-                this.addSlot(new BlockSlot(inventory, l + m * 3, 62 + l * 18, 17 + m * 18));
+                this.addSlot(new OutputSlot(inventory, l + m * 3, 62 + l * 18, 17 + m * 18));
             }
         }
+        this.addSlot(new FuelSlot(inventory, 9, 24, 41));
+        this.addSlot(new ToolSlot(inventory, 10, 136, 41));
 
         //The player inventory
         for (m = 0; m < 3; ++m) {
@@ -57,6 +63,7 @@ public class IgneousMinerScreenHandler extends ScreenHandler {
             this.addSlot(new Slot(playerInventory, m, 8 + m * 18, 142));
         }
 
+        this.addProperties(propertyDelegate);
     }
 
     @Override
@@ -77,11 +84,17 @@ public class IgneousMinerScreenHandler extends ScreenHandler {
                     return ItemStack.EMPTY;
                 }
             } else {
-                if (ItemStackUtils.isBlock(originalStack)) {
-                    if (!this.insertItem(originalStack, 0, 9, false)) {
+                if (ItemStackUtils.isFuel(originalStack)) {
+                    if (!this.insertItem(originalStack, 9, 10, false)) {
                         return ItemStack.EMPTY;
                     }
-                } else return ItemStack.EMPTY;
+                } else if (ItemStackUtils.isTool(originalStack)) {
+                    if (!this.insertItem(originalStack, 10, 11, false)) {
+                        return ItemStack.EMPTY;
+                    }
+                } else {
+                    return ItemStack.EMPTY;
+                }
             }
 
             if (originalStack.isEmpty()) {
@@ -92,6 +105,18 @@ public class IgneousMinerScreenHandler extends ScreenHandler {
         }
 
         return newStack;
+    }
+
+    public int getFuelProgress() {
+        int i = this.propertyDelegate.get(1);
+        if (i == 0) {
+            i = 200;
+        }
+        return this.propertyDelegate.get(0) * 13 / i;
+    }
+
+    public boolean isBurning() {
+        return this.propertyDelegate.get(0) > 0;
     }
 }
 

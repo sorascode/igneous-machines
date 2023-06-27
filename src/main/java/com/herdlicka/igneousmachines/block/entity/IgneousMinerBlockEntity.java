@@ -1,7 +1,7 @@
 package com.herdlicka.igneousmachines.block.entity;
 
 import com.herdlicka.igneousmachines.IgneousMachinesMod;
-import com.herdlicka.igneousmachines.ImplementedInventory;
+import com.herdlicka.igneousmachines.inventory.ImplementedInventory;
 import com.herdlicka.igneousmachines.screen.IgneousMinerScreenHandler;
 import com.herdlicka.igneousmachines.util.ItemStackUtils;
 import net.minecraft.block.BlockState;
@@ -13,17 +13,63 @@ import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
 import org.jetbrains.annotations.Nullable;
 
 public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory, SidedInventory {
 
-    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(9, ItemStack.EMPTY);
+    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(11, ItemStack.EMPTY);
+
+    private static final int[] TOP_SLOTS = new int[]{10};
+    private static final int[] BOTTOM_SLOTS = new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8};
+    private static final int[] SIDE_SLOTS = new int[]{9};
+
+    public static final int BURN_TIME_PROPERTY_INDEX = 0;
+    public static final int FUEL_TIME_PROPERTY_INDEX = 1;
+    public static final int PROPERTY_COUNT = 2;
+    public static final float FUEL_MULTIPLIER = 1f;
+    int burnTime;
+    int fuelTime;
+
+    protected final PropertyDelegate propertyDelegate = new PropertyDelegate(){
+
+        @Override
+        public int get(int index) {
+            switch (index) {
+                case BURN_TIME_PROPERTY_INDEX: {
+                    return burnTime;
+                }
+                case FUEL_TIME_PROPERTY_INDEX: {
+                    return fuelTime;
+                }
+            }
+            return 0;
+        }
+
+        @Override
+        public void set(int index, int value) {
+            switch (index) {
+                case BURN_TIME_PROPERTY_INDEX: {
+                    burnTime = value;
+                    break;
+                }
+                case FUEL_TIME_PROPERTY_INDEX: {
+                    fuelTime = value;
+                    break;
+                }
+            }
+        }
+
+        @Override
+        public int size() {
+            return PROPERTY_COUNT;
+        }
+    };
 
     public IgneousMinerBlockEntity(BlockPos pos, BlockState state) {
         super(IgneousMachinesMod.IGNEOUS_MINER_BLOCK_ENTITY, pos, state);
@@ -34,21 +80,11 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
         return inventory;
     }
 
-    public int chooseNonEmptySlot(Random random) {
-        int i = -1;
-        int j = 1;
-        for (int k = 0; k < this.inventory.size(); ++k) {
-            if (this.inventory.get(k).isEmpty() || random.nextInt(j++) != 0) continue;
-            i = k;
-        }
-        return i;
-    }
-
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
         //We provide *this* to the screenHandler as our class Implements Inventory
         //Only the Server has the Inventory at the start, this will be synced to the client in the ScreenHandler
-        return new IgneousMinerScreenHandler(syncId, playerInventory, this);
+        return new IgneousMinerScreenHandler(syncId, playerInventory, this, propertyDelegate);
     }
 
     @Override
@@ -73,21 +109,33 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
 
     @Override
     public int[] getAvailableSlots(Direction side) {
-        int[] result = new int[getItems().size()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = i;
+        if (side == Direction.DOWN) {
+            return BOTTOM_SLOTS;
         }
-
-        return result;
+        if (side == Direction.UP) {
+            return TOP_SLOTS;
+        }
+        return SIDE_SLOTS;
     }
 
     @Override
     public boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir) {
-        return ItemStackUtils.isBlock(stack);
+        if (slot == 9) {
+            return ItemStackUtils.isFuel(stack);
+        }
+        else if (slot == 10) {
+            return ItemStackUtils.isTool(stack);
+        }
+
+        return false;
     }
 
     @Override
     public boolean canExtract(int slot, ItemStack stack, Direction dir) {
-        return true;
+        if (slot < 9) {
+            return true;
+        }
+
+        return false;
     }
 }

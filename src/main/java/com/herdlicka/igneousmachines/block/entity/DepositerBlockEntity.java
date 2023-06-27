@@ -2,7 +2,7 @@ package com.herdlicka.igneousmachines.block.entity;
 
 import com.herdlicka.igneousmachines.screen.DepositerScreenHandler;
 import com.herdlicka.igneousmachines.IgneousMachinesMod;
-import com.herdlicka.igneousmachines.ImplementedInventory;
+import com.herdlicka.igneousmachines.inventory.ImplementedInventory;
 import com.herdlicka.igneousmachines.util.ItemStackUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;

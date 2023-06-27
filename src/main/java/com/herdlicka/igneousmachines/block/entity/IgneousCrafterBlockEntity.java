@@ -1,7 +1,7 @@
 package com.herdlicka.igneousmachines.block.entity;
 
 import com.herdlicka.igneousmachines.IgneousMachinesMod;
-import com.herdlicka.igneousmachines.ImplementedInventory;
+import com.herdlicka.igneousmachines.inventory.ImplementedInventory;
 import com.herdlicka.igneousmachines.block.IgneousCrafterBlock;
 import com.herdlicka.igneousmachines.screen.IgneousCrafterScreenHandler;
 import com.herdlicka.igneousmachines.util.ItemStackUtils;
