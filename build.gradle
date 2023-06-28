@@ -91,17 +91,20 @@ publishing {
 	}
 }
 
+tasks.modrinth.dependsOn(tasks.modrinthSyncBody)
+
 modrinth {
     token = System.getenv("MODRINTH_TOKEN") // This is the default. Remember to have the MODRINTH_TOKEN environment variable set or else this will fail, or set it to whatever you want - just make sure it stays private!
 	projectId = "i4mUEhXw" // This can be the project ID or the slug. Either will work!
 	versionType = "beta" // This is the default -- can also be `beta` or `alpha`
+    versionName = "Igneous Machines ${version}" // The version title. If not specified, it'll use the version number
 	uploadFile = remapJar // With Loom, this MUST be set to `remapJar` instead of `jar`!
 	gameVersions = ["1.20", "1.20.1"] // Must be an array, even with only one version
 	loaders = ["fabric"] // Must also be an array - no need to specify this if you're using Loom or ForgeGradle
 	dependencies { // A special DSL for creating dependencies
 		required.project "fabric-api" // Creates a new required dependency on Fabric API
 	}
-	changelog = ""
+	changelog = "Adds dummy Igneous Miner, Updates mod information"
     syncBodyFrom = rootProject.file("README.md").text
 }
 

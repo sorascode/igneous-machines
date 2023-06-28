@@ -17,7 +17,7 @@ The **Igneous Miner** is able to use tools and fuel to mine the block in front o
 
 It also allows for inserting/extracting items via hoppers from different sides. Fuel from the side, tools from the top and mined blocks can be extracted from the bottom.
 
-**! WORK IN PROGRESS ! (not available in current version)**
+**! WORK IN PROGRESS ! (not functional yet)**
 
 <br/>
 
