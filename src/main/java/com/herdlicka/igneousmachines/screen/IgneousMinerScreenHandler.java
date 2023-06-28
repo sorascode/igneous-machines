@@ -26,7 +26,7 @@ public class IgneousMinerScreenHandler extends ScreenHandler {
     //The client will call the other constructor with an empty Inventory and the screenHandler will automatically
     //sync this empty inventory with the inventory on the server.
     public IgneousMinerScreenHandler(int syncId, PlayerInventory playerInventory) {
-        this(syncId, playerInventory, new SimpleInventory(11), new ArrayPropertyDelegate(4));
+        this(syncId, playerInventory, new SimpleInventory(11), new ArrayPropertyDelegate(2));
     }
 
     //This constructor gets called from the BlockEntity on the server without calling the other constructor first, the server knows the inventory of the container
@@ -84,12 +84,12 @@ public class IgneousMinerScreenHandler extends ScreenHandler {
                     return ItemStack.EMPTY;
                 }
             } else {
-                if (ItemStackUtils.isFuel(originalStack)) {
-                    if (!this.insertItem(originalStack, 9, 10, false)) {
+                if (ItemStackUtils.isTool(originalStack)) {
+                    if (!this.insertItem(originalStack, 10, 11, false)) {
                         return ItemStack.EMPTY;
                     }
-                } else if (ItemStackUtils.isTool(originalStack)) {
-                    if (!this.insertItem(originalStack, 10, 11, false)) {
+                } else if (ItemStackUtils.isFuel(originalStack)) {
+                    if (!this.insertItem(originalStack, 9, 10, false)) {
                         return ItemStack.EMPTY;
                     }
                 } else {
