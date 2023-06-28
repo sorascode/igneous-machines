@@ -1,5 +1,6 @@
 package com.herdlicka.igneousmachines.block;
 
+import com.herdlicka.igneousmachines.IgneousMachinesMod;
 import com.herdlicka.igneousmachines.block.entity.IgneousMinerBlockEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -7,12 +8,17 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.FacingBlock;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
@@ -23,20 +29,23 @@ import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 public class IgneousMinerBlock extends BlockWithEntity {
     public static final DirectionProperty FACING = FacingBlock.FACING;
+    public static final BooleanProperty LIT = Properties.LIT;
     public static final BooleanProperty TRIGGERED = Properties.TRIGGERED;
 
     public IgneousMinerBlock(Settings settings) {
         super(settings);
-        this.setDefaultState(this.stateManager.getDefaultState().with(FACING, Direction.NORTH).with(TRIGGERED, false));
+        this.setDefaultState(this.stateManager.getDefaultState().with(FACING, Direction.NORTH).with(LIT, false).with(TRIGGERED, false));
     }
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(FACING, TRIGGERED);
+        builder.add(FACING, LIT, TRIGGERED);
     }
 
     @Override
@@ -112,5 +121,38 @@ public class IgneousMinerBlock extends BlockWithEntity {
     @Override
     public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
         return ScreenHandler.calculateComparatorOutput(world.getBlockEntity(pos));
+    }
+
+    @Override
+    public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
+        if (!state.get(LIT)) {
+            return;
+        }
+        double d = (double)pos.getX() + 0.5;
+        double e = pos.getY();
+        double f = (double)pos.getZ() + 0.5;
+        if (random.nextDouble() < 0.1) {
+            world.playSound(d, e, f, SoundEvents.BLOCK_FURNACE_FIRE_CRACKLE, SoundCategory.BLOCKS, 1.0f, 1.0f, false);
+        }
+        Direction direction = state.get(FACING);
+        Direction.Axis axis = direction.getAxis();
+        double g = 0.52;
+        double h = random.nextDouble() * 0.6 - 0.3;
+        double i = axis == Direction.Axis.X ? (double)direction.getOffsetX() * 0.52 : h;
+        double j = random.nextDouble() * 6.0 / 16.0;
+        double k = axis == Direction.Axis.Z ? (double)direction.getOffsetZ() * 0.52 : h;
+        world.addParticle(ParticleTypes.SMOKE, d + i, e + j, f + k, 0.0, 0.0, 0.0);
+        world.addParticle(ParticleTypes.FLAME, d + i, e + j, f + k, 0.0, 0.0, 0.0);
+    }
+
+    @Override
+    @Nullable
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+        return checkType(world, type, IgneousMachinesMod.IGNEOUS_MINER_BLOCK_ENTITY);
+    }
+
+    @Nullable
+    protected static <T extends BlockEntity> BlockEntityTicker<T> checkType(World world, BlockEntityType<T> givenType, BlockEntityType<? extends IgneousMinerBlockEntity> expectedType) {
+        return world.isClient ? null : checkType(givenType, expectedType, IgneousMinerBlockEntity::tick);
     }
 }
