@@ -6,6 +6,12 @@
 name: build
 on: [pull_request, push]
 
+env:
+  MINECRAFT_VERSIONS: [1.20, 1.20.1]
+  JAVA_VERSION: 17
+  VERSION_TYPE: beta
+  RELEASE_PREFIX: Igneous Machines
+
 jobs:
   build:
     strategy:
@@ -38,3 +44,30 @@ jobs:
         with:
           name: Artifacts
           path: build/libs/
+      - name: Set variables
+        run: |
+          VER=$(./gradlew -q projectVersion)
+          echo "VERSION=$VER" >> $GITHUB_ENV
+      - name: Publish (CurseForge/Modrinth/GitHub)
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: i4mUEhXw
+          modrinth-token: ${{ secrets.TOKEN_MODRINTH }}
+
+          curseforge-id: 881761
+          curseforge-token: ${{ secrets.TOKEN_CURSEFORGE }}
+
+          github-generate-changelog: true
+          github-token: ${{ secrets.TOKEN_GITHUB }}
+
+          name: ${{ env.RELEASE_PREFIX }} ${{ env.VERSION }}
+          version: ${{ env.VERSION }}
+          version-type: ${{ env.VERSION_TYPE }}
+          changelog-file: CHANGELOG.md
+
+          loaders: fabric
+          game-versions: ${{ env.MINECRAFT_VERSIONS }}
+          java: ${{ env.JAVA_VERSION }}
+
+          dependencies: |
+            fabric-api(required){modrinth:P7dR8mSH}{curseforge:306612}#(ignore:github)
