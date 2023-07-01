@@ -50,11 +50,14 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
 
     public static final int BURN_TIME_PROPERTY_INDEX = 0;
     public static final int FUEL_TIME_PROPERTY_INDEX = 1;
-    public static final int PROPERTY_COUNT = 2;
+    public static final int BREAK_PROGRESS_PROPERTY_INDEX = 2;
+    public static final int HAS_BLOCK_PROPERTY_INDEX = 3;
+    public static final int PROPERTY_COUNT = 4;
     public static final float FUEL_MULTIPLIER = 1f;
     int burnTime;
     int fuelTime;
     float breakProgress;
+    boolean hasBlock;
 
     protected final PropertyDelegate propertyDelegate = new PropertyDelegate(){
 
@@ -66,6 +69,12 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
                 }
                 case FUEL_TIME_PROPERTY_INDEX: {
                     return fuelTime;
+                }
+                case BREAK_PROGRESS_PROPERTY_INDEX: {
+                    return (int) (breakProgress * 15);
+                }
+                case HAS_BLOCK_PROPERTY_INDEX: {
+                    return hasBlock ? 1 : 0;
                 }
             }
             return 0;
@@ -80,6 +89,14 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
                 }
                 case FUEL_TIME_PROPERTY_INDEX: {
                     fuelTime = value;
+                    break;
+                }
+                case BREAK_PROGRESS_PROPERTY_INDEX: {
+                    breakProgress = value / 15f;
+                    break;
+                }
+                case HAS_BLOCK_PROPERTY_INDEX: {
+                    hasBlock = value == 1;
                     break;
                 }
             }
@@ -155,11 +172,16 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
         ItemStack toolStack = blockEntity.inventory.get(10);
         var hasFuel = !fuelStack.isEmpty();
         var hasTool = !toolStack.isEmpty();
+
+        BlockPointerImpl pointer = new BlockPointerImpl(serverWorld, pos);
+        Direction direction = pointer.getBlockState().get(IgneousMinerBlock.FACING);
+        BlockPos blockPos = pointer.getPos().offset(direction);
+        BlockState blockState = world.getBlockState(blockPos);
+
+        blockEntity.hasBlock = !blockState.isAir();
+
         if ((blockEntity.isBurning() || hasFuel) && hasTool) {
-            BlockPointerImpl pointer = new BlockPointerImpl(serverWorld, pos);
-            Direction direction = pointer.getBlockState().get(IgneousMinerBlock.FACING);
-            BlockPos blockPos = pointer.getPos().offset(direction);
-            if (!blockEntity.isBurning() && canAcceptBlockOutput(serverWorld, blockPos, blockEntity.inventory)) {
+            if (!blockEntity.isBurning() && canAcceptBlockOutput(serverWorld, blockPos, blockState, blockEntity.inventory)) {
                 blockEntity.fuelTime = blockEntity.burnTime = blockEntity.getFuelTime(fuelStack);
                 if (blockEntity.isBurning()) {
                     stateChanged = true;
@@ -173,11 +195,11 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
                     }
                 }
             }
-            if (blockEntity.isBurning() && canAcceptBlockOutput(serverWorld, blockPos, blockEntity.inventory)) {
+            if (blockEntity.isBurning() && canAcceptBlockOutput(serverWorld, blockPos, blockState, blockEntity.inventory)) {
                 blockEntity.breakProgress += calcBlockBreakingDelta(world.getBlockState(blockPos), toolStack, world, blockPos);
                 if (blockEntity.breakProgress >= 1) {
                     blockEntity.breakProgress = 0;
-                    collectBlock(serverWorld, blockPos, blockEntity.inventory);
+                    collectBlock(serverWorld, blockPos, blockState, blockEntity.inventory, blockEntity);
                     stateChanged = true;
                 }
             } else {
@@ -197,9 +219,7 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
     }
 
 
-    private static boolean canAcceptBlockOutput(ServerWorld world, BlockPos blockPos, DefaultedList<ItemStack> slots) {
-
-        var blockState = world.getBlockState(blockPos);
+    private static boolean canAcceptBlockOutput(ServerWorld world, BlockPos blockPos, BlockState blockState, DefaultedList<ItemStack> slots) {
 
         if (blockState == null || blockState.isAir()) {
             return false;
@@ -222,12 +242,10 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
         return true;
     }
 
-    private static boolean collectBlock(ServerWorld world, BlockPos blockPos, DefaultedList<ItemStack> slots) {
-        if (blockPos == null || !canAcceptBlockOutput(world, blockPos, slots)) {
+    private static boolean collectBlock(ServerWorld world, BlockPos blockPos, BlockState blockState, DefaultedList<ItemStack> slots, IgneousMinerBlockEntity blockEntity) {
+        if (blockPos == null || !canAcceptBlockOutput(world, blockPos, blockState, slots)) {
             return false;
         }
-
-        var blockState = world.getBlockState(blockPos);
 
         ItemStack toolStack = slots.get(10);
 
@@ -265,6 +283,7 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
         }
 
         world.breakBlock(blockPos, false);
+        blockEntity.hasBlock = false;
         if(toolStack.damage(1, world.getRandom(), null)) {
             slots.set(10, ItemStack.EMPTY);
         }
@@ -290,20 +309,6 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
             }
         }
         return f;
-    }
-
-    private static ItemStack getFirstAvailable(ItemStack lookingToInsert, DefaultedList<ItemStack> slots) {
-        for (int i = 0; i < 9; i++) {
-            var currentStack = slots.get(i);
-            if (currentStack.isEmpty()) {
-                return currentStack;
-            } else if (currentStack.isOf(lookingToInsert.getItem())) {
-                if (currentStack.getCount() < lookingToInsert.getMaxCount()) {
-                    return currentStack;
-                }
-            }
-        }
-        return null;
     }
 
     private static List<ItemStack> getAllAvailable(ItemStack lookingToInsert, DefaultedList<ItemStack> slots) {

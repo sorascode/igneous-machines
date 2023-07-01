@@ -1,6 +1,7 @@
 package com.herdlicka.igneousmachines.screen;
 
 import com.herdlicka.igneousmachines.IgneousMachinesMod;
+import com.herdlicka.igneousmachines.block.entity.IgneousMinerBlockEntity;
 import com.herdlicka.igneousmachines.slot.FuelSlot;
 import com.herdlicka.igneousmachines.slot.OutputSlot;
 import com.herdlicka.igneousmachines.slot.ToolSlot;
@@ -26,7 +27,7 @@ public class IgneousMinerScreenHandler extends ScreenHandler {
     //The client will call the other constructor with an empty Inventory and the screenHandler will automatically
     //sync this empty inventory with the inventory on the server.
     public IgneousMinerScreenHandler(int syncId, PlayerInventory playerInventory) {
-        this(syncId, playerInventory, new SimpleInventory(11), new ArrayPropertyDelegate(2));
+        this(syncId, playerInventory, new SimpleInventory(11), new ArrayPropertyDelegate(IgneousMinerBlockEntity.PROPERTY_COUNT));
     }
 
     //This constructor gets called from the BlockEntity on the server without calling the other constructor first, the server knows the inventory of the container
@@ -108,15 +109,23 @@ public class IgneousMinerScreenHandler extends ScreenHandler {
     }
 
     public int getFuelProgress() {
-        int i = this.propertyDelegate.get(1);
+        int i = this.propertyDelegate.get(IgneousMinerBlockEntity.FUEL_TIME_PROPERTY_INDEX);
         if (i == 0) {
             i = 200;
         }
-        return this.propertyDelegate.get(0) * 13 / i;
+        return this.propertyDelegate.get(IgneousMinerBlockEntity.BURN_TIME_PROPERTY_INDEX) * 13 / i;
     }
 
     public boolean isBurning() {
-        return this.propertyDelegate.get(0) > 0;
+        return this.propertyDelegate.get(IgneousMinerBlockEntity.BURN_TIME_PROPERTY_INDEX) > 0;
+    }
+
+    public int getBreakProgress() {
+        return this.propertyDelegate.get(IgneousMinerBlockEntity.BREAK_PROGRESS_PROPERTY_INDEX);
+    }
+
+    public boolean hasBlock() {
+        return this.propertyDelegate.get(IgneousMinerBlockEntity.HAS_BLOCK_PROPERTY_INDEX) == 1;
     }
 }
 
