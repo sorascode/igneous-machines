@@ -27,6 +27,7 @@ import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPointerImpl;
 import net.minecraft.util.math.BlockPos;
@@ -218,31 +219,6 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
             return false;
         }
 
-        LootContextParameterSet.Builder builder = new LootContextParameterSet.Builder(world).add(LootContextParameters.ORIGIN, Vec3d.ofCenter(blockPos)).add(LootContextParameters.TOOL, toolStack).addOptional(LootContextParameters.BLOCK_ENTITY, world.getBlockEntity(blockPos));
-        List<ItemStack> resultStacks = blockState.getDroppedStacks(builder);
-
-        var dirtiedSlots = new ArrayList<ItemStack>();
-        for (ItemStack resultStack : resultStacks) {
-            var outputStacks = getAllAvailable(resultStack, slots);
-            outputStacks = outputStacks.stream().filter((slot) -> !dirtiedSlots.contains(slot)).toList();
-            if (outputStacks.size() == 0) {
-                return false;
-            }
-            var countLeft = resultStack.getCount();
-            for (ItemStack outputStack : outputStacks) {
-                dirtiedSlots.add(outputStack);
-                if (outputStack.getCount() + countLeft > resultStack.getMaxCount()) {
-                    countLeft -= resultStack.getMaxCount() - outputStack.getCount();
-                }
-                else {
-                    countLeft = 0;
-                    break;
-                }
-            }
-            if (countLeft > 0) {
-                return false;
-            }
-        }
         return true;
     }
 
@@ -261,9 +237,6 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
 
         for (ItemStack resultStack : resultStacks) {
             var outputStacks = getAllAvailable(resultStack, slots);
-            if (outputStacks.size() == 0) {
-                return false;
-            }
             var countLeft = resultStack.getCount();
             for (ItemStack outputStack : outputStacks) {
                 if (outputStack.getCount() + countLeft > resultStack.getMaxCount()) {
@@ -287,7 +260,7 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
                 }
             }
             if (countLeft > 0) {
-                return false;
+                ItemScatterer.spawn(world, blockPos.getX(), blockPos.getY(), blockPos.getZ(), resultStack.copyWithCount(countLeft));
             }
         }
 
