@@ -45,7 +45,7 @@ public class IgneousMinerScreen extends HandledScreen<IgneousMinerScreenHandler>
         }
         if (this.handler.hasBlock()) {
             int k = (this.handler).getBreakProgress();
-            context.drawTexture(TEXTURE, x + 137, y + 23 + 15 - (15 - k), 176, 29 - (15 - k), 14, 15 - k);
+            context.drawTexture(TEXTURE, x + 137, y + 23 + k, 176, 29 - 15 + k, 14, 15 - k);
         }
         this.templateSlotIcon.render(this.handler, context, delta, this.x, this.y);
     }
