@@ -180,7 +180,7 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
         BlockPos blockPos = pointer.getPos().offset(direction);
         BlockState blockState = world.getBlockState(blockPos);
 
-        blockEntity.hasBlock = !blockState.isAir();
+        blockEntity.hasBlock = hasTool && !blockState.isAir() && toolStack.isSuitableFor(blockState);
 
         if ((blockEntity.isBurning() || hasFuel) && hasTool && !isTriggered) {
             if (!blockEntity.isBurning() && canAcceptBlockOutput(serverWorld, blockPos, blockState, blockEntity.inventory)) {
@@ -233,7 +233,7 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
 
         ItemStack toolStack = slots.get(10);
 
-        if (blockState.isToolRequired() && !toolStack.isSuitableFor(blockState)) {
+        if (!toolStack.isSuitableFor(blockState)) {
             return false;
         }
 
