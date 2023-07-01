@@ -173,6 +173,8 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
         var hasFuel = !fuelStack.isEmpty();
         var hasTool = !toolStack.isEmpty();
 
+        var isTriggered = state.get(IgneousMinerBlock.TRIGGERED);
+
         BlockPointerImpl pointer = new BlockPointerImpl(serverWorld, pos);
         Direction direction = pointer.getBlockState().get(IgneousMinerBlock.FACING);
         BlockPos blockPos = pointer.getPos().offset(direction);
@@ -180,7 +182,7 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
 
         blockEntity.hasBlock = !blockState.isAir();
 
-        if ((blockEntity.isBurning() || hasFuel) && hasTool) {
+        if ((blockEntity.isBurning() || hasFuel) && hasTool && !isTriggered) {
             if (!blockEntity.isBurning() && canAcceptBlockOutput(serverWorld, blockPos, blockState, blockEntity.inventory)) {
                 blockEntity.fuelTime = blockEntity.burnTime = blockEntity.getFuelTime(fuelStack);
                 if (blockEntity.isBurning()) {
@@ -205,7 +207,7 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
             } else {
                 blockEntity.breakProgress = 0;
             }
-        } else if ((!blockEntity.isBurning() || !hasTool) && blockEntity.breakProgress > 0) {
+        } else if ((!blockEntity.isBurning() || !hasTool || isTriggered) && blockEntity.breakProgress > 0) {
             blockEntity.breakProgress = MathHelper.clamp(blockEntity.breakProgress - 2, 0, 1);
         }
         if (wasBurning != blockEntity.isBurning()) {
