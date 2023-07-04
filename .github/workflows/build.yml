@@ -7,7 +7,6 @@ name: build
 on: [pull_request, push]
 
 env:
-  MINECRAFT_VERSIONS: [1.20, 1.20.1]
   JAVA_VERSION: 17
   VERSION_TYPE: release
   RELEASE_PREFIX: Igneous Machines
@@ -66,7 +65,7 @@ jobs:
           changelog-file: CHANGELOG.md
 
           loaders: fabric
-          game-versions: ${{ env.MINECRAFT_VERSIONS }}
+          game-versions: [1.20, 1.20.1]
           java: ${{ env.JAVA_VERSION }}
 
           dependencies: |
