@@ -11,7 +11,8 @@ env:
     1.19.4
   JAVA_VERSION: 17
   VERSION_TYPE: release
-  RELEASE_PREFIX: [1.19.4] Igneous Machines
+  RELEASE_PREFIX: |
+    [1.19.4] Igneous Machines
 
 jobs:
   publish:
