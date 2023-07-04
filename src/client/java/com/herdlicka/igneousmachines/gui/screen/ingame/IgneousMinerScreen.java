@@ -16,10 +16,10 @@ import java.util.List;
 @Environment(value = EnvType.CLIENT)
 public class IgneousMinerScreen extends HandledScreen<IgneousMinerScreenHandler> {
     private static final Identifier TEXTURE = new Identifier("igneous-machines", "textures/gui/container/igneous_miner.png");
-    private static final Identifier EMPTY_SLOT_HOE_TEXTURE = new Identifier("item/empty_slot_hoe");
-    private static final Identifier EMPTY_SLOT_AXE_TEXTURE = new Identifier("item/empty_slot_axe");
-    private static final Identifier EMPTY_SLOT_SHOVEL_TEXTURE = new Identifier("item/empty_slot_shovel");
-    private static final Identifier EMPTY_SLOT_PICKAXE_TEXTURE = new Identifier("item/empty_slot_pickaxe");
+    private static final Identifier EMPTY_SLOT_HOE_TEXTURE = new Identifier("igneous-machines", "textures/item/empty_slot_hoe.png");
+    private static final Identifier EMPTY_SLOT_AXE_TEXTURE = new Identifier("igneous-machines", "textures/item/empty_slot_axe.png");
+    private static final Identifier EMPTY_SLOT_SHOVEL_TEXTURE = new Identifier("igneous-machines", "textures/item/empty_slot_shovel.png");
+    private static final Identifier EMPTY_SLOT_PICKAXE_TEXTURE = new Identifier("igneous-machines", "textures/item/empty_slot_pickaxe.png");
     private static final List<Identifier> TOOL_SLOT_TEXTURES = List.of(EMPTY_SLOT_PICKAXE_TEXTURE, EMPTY_SLOT_AXE_TEXTURE, EMPTY_SLOT_SHOVEL_TEXTURE, EMPTY_SLOT_HOE_TEXTURE);
 
     private final CyclingSlotIcon templateSlotIcon = new CyclingSlotIcon(10);
