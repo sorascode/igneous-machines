@@ -1,14 +1,28 @@
 {
-  "parent": "block/cube",
+  "parent": "block/block",
   "textures": {
     "particle": "minecraft:block/furnace_side",
-    "up": "minecraft:block/furnace_top",
+    "up": "igneous-machines:block/igneous_miner_top",
     "down": "minecraft:block/furnace_top",
-    "north": "igneous-machines:block/depositer_front",
-    "south": "minecraft:block/furnace_side",
-    "west": "minecraft:block/furnace_side",
-    "east": "minecraft:block/furnace_side"
-  }
+    "north": "igneous-machines:block/igneous_miner_front",
+    "south": "igneous-machines:block/igneous_miner_back",
+    "west": "igneous-machines:block/igneous_miner_side",
+    "east": "igneous-machines:block/igneous_miner_side"
+  },
+  "elements": [
+    {
+      "from": [ 0, 0, 0 ],
+      "to": [ 16, 16, 16 ],
+      "faces": {
+        "down":  { "texture": "#down", "cullface": "down" },
+        "up":    { "texture": "#up", "cullface": "up" },
+        "north": { "texture": "#north", "cullface": "north" },
+        "south": { "texture": "#south", "cullface": "south" },
+        "west":  { "uv": [16, 0, 0, 16], "texture": "#west", "cullface": "west" },
+        "east":  { "texture": "#east", "cullface": "east" }
+      }
+    }
+  ]
 }
 
 

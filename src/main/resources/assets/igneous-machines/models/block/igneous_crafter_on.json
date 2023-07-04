@@ -1,13 +1,7 @@
 {
-  "parent": "block/cube",
+  "parent": "igneous-machines:block/igneous_crafter",
   "textures": {
-    "particle": "igneous-machines:block/igneous_crafter_side",
-    "up": "igneous-machines:block/igneous_crafter_top",
-    "down": "minecraft:block/furnace_top",
-    "north": "igneous-machines:block/igneous_crafter_front_on",
-    "south": "igneous-machines:block/igneous_crafter_side",
-    "west": "igneous-machines:block/igneous_crafter_side",
-    "east": "igneous-machines:block/igneous_crafter_side"
+    "north": "igneous-machines:block/igneous_crafter_front_on"
   }
 }
 

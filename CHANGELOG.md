@@ -1,0 +1,1 @@
+Adds functionality to Igneous Miner
