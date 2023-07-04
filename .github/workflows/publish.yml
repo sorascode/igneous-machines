@@ -4,7 +4,10 @@
 # against bad commits.
 
 name: publish
-on: [pull_request]
+on:
+  push:
+    branches:
+      - master
 
 env:
   MINECRAFT_VERSIONS: |
@@ -44,6 +47,10 @@ jobs:
         with:
           name: Artifacts
           path: build/libs/
+      - name: Set variables
+        run: |
+          VER=$(./gradlew -q projectVersion)
+          echo "VERSION=$VER" >> $GITHUB_ENV
       - name: Publish (CurseForge/Modrinth/GitHub)
         uses: Kir-Antipov/mc-publish@v3.3
         with:

@@ -38,7 +38,3 @@ jobs:
         with:
           name: Artifacts
           path: build/libs/
-      - name: Set variables
-        run: |
-          VER=$(./gradlew -q projectVersion)
-          echo "VERSION=$VER" >> $GITHUB_ENV
