@@ -19,7 +19,7 @@ import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.loot.context.LootContextParameterSet;
+import net.minecraft.loot.context.LootContext;
 import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.NamedScreenHandlerFactory;
@@ -251,7 +251,7 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
 
         ItemStack toolStack = slots.get(10);
 
-        LootContextParameterSet.Builder builder = new LootContextParameterSet.Builder(world).add(LootContextParameters.ORIGIN, Vec3d.ofCenter(blockPos)).add(LootContextParameters.TOOL, toolStack).addOptional(LootContextParameters.BLOCK_ENTITY, world.getBlockEntity(blockPos));
+        LootContext.Builder builder = new LootContext.Builder(world).parameter(LootContextParameters.ORIGIN, Vec3d.ofCenter(blockPos)).parameter(LootContextParameters.TOOL, toolStack).optionalParameter(LootContextParameters.BLOCK_ENTITY, world.getBlockEntity(blockPos));
         List<ItemStack> resultStacks = blockState.getDroppedStacks(builder);
 
 
