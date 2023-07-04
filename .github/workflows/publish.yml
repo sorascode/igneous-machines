@@ -4,10 +4,7 @@
 # against bad commits.
 
 name: publish
-on:
-  push:
-    branches:
-      - master
+on: [ workflow_dispatch ]
 
 env:
   MINECRAFT_VERSIONS: |

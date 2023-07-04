@@ -15,9 +15,9 @@ Similar to a Furnace the **Igneous Crafter** allows you to insert/extract items 
 ### Igneous Miner
 The **Igneous Miner** is able to use tools and fuel to mine the block in front of it. If it is given an axe for example it will be able to chop wood, with a pickaxe stone, etc.
 
-It also allows for inserting/extracting items via hoppers from different sides. Fuel from the side, tools from the top and mined blocks can be extracted from the bottom.
+![Igneous Miner](https://cdn-raw.modrinth.com/data/i4mUEhXw/images/c00d26ce9d5329373ee97f79247480f472186265.png)
 
-**! WORK IN PROGRESS ! (not functional yet)**
+It also allows for inserting/extracting items via hoppers from different sides. Fuel from the side, tools from the top and mined blocks can be extracted from the bottom.
 
 ----
 
