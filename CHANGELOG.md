@@ -1,1 +1,1 @@
-Adds functionality to Igneous Miner
+Add 1.19.2 and 1.19.4 support

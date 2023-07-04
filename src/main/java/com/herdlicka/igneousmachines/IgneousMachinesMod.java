@@ -63,7 +63,7 @@ public class IgneousMachinesMod implements ModInitializer {
         DEPOSITER_BLOCK_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, DEPOSITER, FabricBlockEntityTypeBuilder.create(DepositerBlockEntity::new, DEPOSITER_BLOCK).build(null));
         DEPOSITER_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(DEPOSITER, DepositerScreenHandler::new);
 
-        IGNEOUS_MINER_BLOCK = Registry.register(Registries.BLOCK, IGNEOUS_MINER, new IgneousMinerBlock(FabricBlockSettings.copyOf(Blocks.DISPENSER)));
+        IGNEOUS_MINER_BLOCK = Registry.register(Registries.BLOCK, IGNEOUS_MINER, new IgneousMinerBlock(FabricBlockSettings.copyOf(Blocks.FURNACE)));
         IGNEOUS_MINER_BLOCK_ITEM = Registry.register(Registries.ITEM, IGNEOUS_MINER, new BlockItem(IGNEOUS_MINER_BLOCK, new FabricItemSettings()));
         IGNEOUS_MINER_BLOCK_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, IGNEOUS_MINER, FabricBlockEntityTypeBuilder.create(IgneousMinerBlockEntity::new, IGNEOUS_MINER_BLOCK).build(null));
         IGNEOUS_MINER_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(IGNEOUS_MINER, IgneousMinerScreenHandler::new);

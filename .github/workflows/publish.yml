@@ -11,7 +11,7 @@ env:
     >=1.19 <1.20
   JAVA_VERSION: 17
   VERSION_TYPE: release
-  RELEASE_PREFIX: Igneous Machines
+  RELEASE_PREFIX: [1.19.4] Igneous Machines
 
 jobs:
   publish:
@@ -57,8 +57,12 @@ jobs:
           curseforge-id: 881761
           curseforge-token: ${{ secrets.TOKEN_CURSEFORGE }}
 
+          github-tag: 1.19.4
           github-generate-changelog: true
           github-token: ${{ secrets.TOKEN_GITHUB }}
+
+          files: |
+            build/libs/!(*-@(dev|sources|javadoc)).jar
 
           name: ${{ env.RELEASE_PREFIX }} ${{ env.VERSION }}
           version: ${{ env.VERSION }}
