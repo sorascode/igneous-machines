@@ -11,7 +11,8 @@ env:
     >=1.20
   JAVA_VERSION: 17
   VERSION_TYPE: release
-  RELEASE_PREFIX: [1.20.x] Igneous Machines
+  RELEASE_PREFIX: |
+    [1.20.x] Igneous Machines
 
 jobs:
   publish:
