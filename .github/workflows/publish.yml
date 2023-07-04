@@ -8,10 +8,10 @@ on: [ workflow_dispatch ]
 
 env:
   MINECRAFT_VERSIONS: |
-    1.19.4
+    1.19.2
   JAVA_VERSION: 17
   VERSION_TYPE: release
-  RELEASE_PREFIX: [1.19.4] Igneous Machines
+  RELEASE_PREFIX: [1.19.2] Igneous Machines
 
 jobs:
   publish:
@@ -57,7 +57,7 @@ jobs:
           curseforge-id: 881761
           curseforge-token: ${{ secrets.TOKEN_CURSEFORGE }}
 
-          github-tag: 1.19.4
+          github-tag: 1.19.2
           github-generate-changelog: true
           github-token: ${{ secrets.TOKEN_GITHUB }}
 

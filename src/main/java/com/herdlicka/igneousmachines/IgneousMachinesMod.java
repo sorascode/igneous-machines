@@ -11,7 +11,6 @@ import com.herdlicka.igneousmachines.screen.IgneousCrafterScreenHandler;
 import com.herdlicka.igneousmachines.screen.IgneousMinerScreenHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
@@ -19,11 +18,10 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 public class IgneousMachinesMod implements ModInitializer {
     // This logger is used to write text to the console and the log file.
@@ -53,31 +51,23 @@ public class IgneousMachinesMod implements ModInitializer {
     public static final Identifier IGNEOUS_MINER = new Identifier(MOD_ID, "igneous_miner");
 
     static {
-        IGNEOUS_CRAFTER_BLOCK = Registry.register(Registries.BLOCK, IGNEOUS_CRAFTER, new IgneousCrafterBlock(FabricBlockSettings.copyOf(Blocks.FURNACE)));
-        IGNEOUS_CRAFTER_BLOCK_ITEM = Registry.register(Registries.ITEM, IGNEOUS_CRAFTER, new BlockItem(IGNEOUS_CRAFTER_BLOCK, new FabricItemSettings()));
-        IGNEOUS_CRAFTER_BLOCK_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, IGNEOUS_CRAFTER, FabricBlockEntityTypeBuilder.create(IgneousCrafterBlockEntity::new, IGNEOUS_CRAFTER_BLOCK).build(null));
+        IGNEOUS_CRAFTER_BLOCK = Registry.register(Registry.BLOCK, IGNEOUS_CRAFTER, new IgneousCrafterBlock(FabricBlockSettings.copyOf(Blocks.FURNACE)));
+        IGNEOUS_CRAFTER_BLOCK_ITEM = Registry.register(Registry.ITEM, IGNEOUS_CRAFTER, new BlockItem(IGNEOUS_CRAFTER_BLOCK, new FabricItemSettings().group(ItemGroup.REDSTONE)));
+        IGNEOUS_CRAFTER_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, IGNEOUS_CRAFTER, FabricBlockEntityTypeBuilder.create(IgneousCrafterBlockEntity::new, IGNEOUS_CRAFTER_BLOCK).build(null));
         IGNEOUS_CRAFTER_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(IGNEOUS_CRAFTER, IgneousCrafterScreenHandler::new);
 
-        DEPOSITER_BLOCK = Registry.register(Registries.BLOCK, DEPOSITER, new DepositerBlock(FabricBlockSettings.copyOf(Blocks.DISPENSER)));
-        DEPOSITER_BLOCK_ITEM = Registry.register(Registries.ITEM, DEPOSITER, new BlockItem(DEPOSITER_BLOCK, new FabricItemSettings()));
-        DEPOSITER_BLOCK_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, DEPOSITER, FabricBlockEntityTypeBuilder.create(DepositerBlockEntity::new, DEPOSITER_BLOCK).build(null));
+        DEPOSITER_BLOCK = Registry.register(Registry.BLOCK, DEPOSITER, new DepositerBlock(FabricBlockSettings.copyOf(Blocks.DISPENSER)));
+        DEPOSITER_BLOCK_ITEM = Registry.register(Registry.ITEM, DEPOSITER, new BlockItem(DEPOSITER_BLOCK, new FabricItemSettings().group(ItemGroup.REDSTONE)));
+        DEPOSITER_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, DEPOSITER, FabricBlockEntityTypeBuilder.create(DepositerBlockEntity::new, DEPOSITER_BLOCK).build(null));
         DEPOSITER_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(DEPOSITER, DepositerScreenHandler::new);
 
-        IGNEOUS_MINER_BLOCK = Registry.register(Registries.BLOCK, IGNEOUS_MINER, new IgneousMinerBlock(FabricBlockSettings.copyOf(Blocks.FURNACE)));
-        IGNEOUS_MINER_BLOCK_ITEM = Registry.register(Registries.ITEM, IGNEOUS_MINER, new BlockItem(IGNEOUS_MINER_BLOCK, new FabricItemSettings()));
-        IGNEOUS_MINER_BLOCK_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, IGNEOUS_MINER, FabricBlockEntityTypeBuilder.create(IgneousMinerBlockEntity::new, IGNEOUS_MINER_BLOCK).build(null));
+        IGNEOUS_MINER_BLOCK = Registry.register(Registry.BLOCK, IGNEOUS_MINER, new IgneousMinerBlock(FabricBlockSettings.copyOf(Blocks.FURNACE)));
+        IGNEOUS_MINER_BLOCK_ITEM = Registry.register(Registry.ITEM, IGNEOUS_MINER, new BlockItem(IGNEOUS_MINER_BLOCK, new FabricItemSettings().group(ItemGroup.REDSTONE)));
+        IGNEOUS_MINER_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, IGNEOUS_MINER, FabricBlockEntityTypeBuilder.create(IgneousMinerBlockEntity::new, IGNEOUS_MINER_BLOCK).build(null));
         IGNEOUS_MINER_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(IGNEOUS_MINER, IgneousMinerScreenHandler::new);
     }
 
     @Override
     public void onInitialize() {
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(content -> {
-            content.add(IGNEOUS_CRAFTER_BLOCK_ITEM);
-        });
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.REDSTONE).register(content -> {
-            content.add(IGNEOUS_CRAFTER_BLOCK_ITEM);
-            content.add(DEPOSITER_BLOCK_ITEM);
-            content.add(IGNEOUS_MINER_BLOCK_ITEM);
-        });
     }
 }

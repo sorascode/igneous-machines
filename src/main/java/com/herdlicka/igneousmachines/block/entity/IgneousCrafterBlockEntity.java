@@ -1,12 +1,11 @@
 package com.herdlicka.igneousmachines.block.entity;
 
 import com.herdlicka.igneousmachines.IgneousMachinesMod;
-import com.herdlicka.igneousmachines.inventory.ImplementedInventory;
 import com.herdlicka.igneousmachines.block.IgneousCrafterBlock;
+import com.herdlicka.igneousmachines.inventory.ImplementedInventory;
 import com.herdlicka.igneousmachines.screen.IgneousCrafterScreenHandler;
 import com.herdlicka.igneousmachines.screen.NothingScreenHandler;
 import com.herdlicka.igneousmachines.util.ItemStackUtils;
-import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -16,7 +15,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.Inventories;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -29,7 +27,6 @@ import net.minecraft.recipe.RecipeManager;
 import net.minecraft.recipe.RecipeMatcher;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.RecipeUnlocker;
-import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
@@ -39,12 +36,11 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Optional;
 
 public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory, SidedInventory, RecipeUnlocker, RecipeInputProvider {
 
@@ -201,7 +197,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
             }
             Recipe recipe = blockEntity.matchGetter.getFirstMatch(blockEntity.craftingInventory, world).orElse(null);
             int i = blockEntity.getMaxCountPerStack();
-            if (!blockEntity.isBurning() && canAcceptRecipeOutput(world.getRegistryManager(), recipe, blockEntity.inventory, i)) {
+            if (!blockEntity.isBurning() && canAcceptRecipeOutput(recipe, blockEntity.inventory, i)) {
                 blockEntity.fuelTime = blockEntity.burnTime = blockEntity.getFuelTime(fuelStack);
                 if (blockEntity.isBurning()) {
                     stateChanged = true;
@@ -215,12 +211,12 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
                     }
                 }
             }
-            if (blockEntity.isBurning() && canAcceptRecipeOutput(world.getRegistryManager(), recipe, blockEntity.inventory, i)) {
+            if (blockEntity.isBurning() && canAcceptRecipeOutput(recipe, blockEntity.inventory, i)) {
                 ++blockEntity.craftTime;
                 if (blockEntity.craftTime == blockEntity.craftTimeTotal) {
                     blockEntity.craftTime = 0;
                     blockEntity.craftTimeTotal = getCraftTime();
-                    if (craftRecipe(world.getRegistryManager(), recipe, blockEntity.inventory, i)) {
+                    if (craftRecipe(recipe, blockEntity.inventory, i)) {
                         blockEntity.setLastRecipe(recipe);
                     }
                     stateChanged = true;
@@ -248,12 +244,12 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
         }
     }
 
-    private static boolean canAcceptRecipeOutput(DynamicRegistryManager registryManager, @Nullable Recipe<?> recipe, DefaultedList<ItemStack> slots, int count) {
+    private static boolean canAcceptRecipeOutput(@Nullable Recipe<?> recipe, DefaultedList<ItemStack> slots, int count) {
         if (recipe == null) {
             return false;
         }
 
-        ItemStack resultStack = recipe.getOutput(registryManager);
+        ItemStack resultStack = recipe.getOutput();
         if (resultStack.isEmpty()) {
             return false;
         }
@@ -299,8 +295,8 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
         return false;
     }
 
-    private static boolean craftRecipe(DynamicRegistryManager registryManager, @Nullable Recipe<?> recipe, DefaultedList<ItemStack> slots, int count) {
-        if (recipe == null || !canAcceptRecipeOutput(registryManager, recipe, slots, count)) {
+    private static boolean craftRecipe(@Nullable Recipe<?> recipe, DefaultedList<ItemStack> slots, int count) {
+        if (recipe == null || !canAcceptRecipeOutput(recipe, slots, count)) {
             return false;
         }
         for (Ingredient ingredient : recipe.getIngredients()) {
@@ -321,7 +317,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
                 return false;
             }
         }
-        ItemStack itemStack2 = recipe.getOutput(registryManager);
+        ItemStack itemStack2 = recipe.getOutput();
         ItemStack itemStack3 = slots.get(10);
         if (itemStack3.isEmpty()) {
             slots.set(10, itemStack2.copy());

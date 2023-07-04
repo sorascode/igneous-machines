@@ -261,7 +261,7 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
             for (ItemStack outputStack : outputStacks) {
                 if (outputStack.getCount() + countLeft > resultStack.getMaxCount()) {
                     if (outputStack.isEmpty()) {
-                        slots.set(slots.indexOf(outputStack), resultStack.copyWithCount(resultStack.getMaxCount()));
+                        slots.set(slots.indexOf(outputStack), ItemStackUtils.copyWithCount(resultStack, resultStack.getMaxCount()));
                     }
                     else {
                         outputStack.setCount(resultStack.getMaxCount());
@@ -270,7 +270,7 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
                 }
                 else {
                     if (outputStack.isEmpty()) {
-                        slots.set(slots.indexOf(outputStack), resultStack.copyWithCount(countLeft));
+                        slots.set(slots.indexOf(outputStack), ItemStackUtils.copyWithCount(resultStack, countLeft));
                     }
                     else {
                         outputStack.increment(countLeft);
@@ -280,7 +280,7 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
                 }
             }
             if (countLeft > 0) {
-                ItemScatterer.spawn(world, blockPos.getX(), blockPos.getY(), blockPos.getZ(), resultStack.copyWithCount(countLeft));
+                ItemScatterer.spawn(world, blockPos.getX(), blockPos.getY(), blockPos.getZ(), ItemStackUtils.copyWithCount(resultStack, countLeft));
             }
         }
 

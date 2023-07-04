@@ -5,6 +5,8 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 
+import java.io.File;
+
 public class ItemStackUtils {
     public static boolean isFuel(ItemStack itemStack) {
         return AbstractFurnaceBlockEntity.canUseAsFuel(itemStack);
@@ -43,5 +45,11 @@ public class ItemStackUtils {
                 stack.isOf(Items.GOLDEN_HOE) ||
                 stack.isOf(Items.DIAMOND_HOE) ||
                 stack.isOf(Items.NETHERITE_HOE);
+    }
+
+    public static ItemStack copyWithCount(ItemStack original, int count) {
+        var copy = original.copy();
+        copy.setCount(count);
+        return copy;
     }
 }

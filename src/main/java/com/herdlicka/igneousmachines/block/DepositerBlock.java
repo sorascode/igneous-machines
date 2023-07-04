@@ -96,10 +96,10 @@ public class DepositerBlock extends BlockWithEntity {
         boolean bl = world.isReceivingRedstonePower(pos) || world.isReceivingRedstonePower(pos.up());
         boolean bl2 = state.get(TRIGGERED);
         if (bl && !bl2) {
-            world.scheduleBlockTick(pos, this, 4);
-            world.setBlockState(pos, state.with(TRIGGERED, true), Block.NO_REDRAW);
+            world.createAndScheduleBlockTick(pos, this, 4);
+            world.setBlockState(pos, state.with(TRIGGERED, true), 4);
         } else if (!bl && bl2) {
-            world.setBlockState(pos, state.with(TRIGGERED, false), Block.NO_REDRAW);
+            world.setBlockState(pos, state.with(TRIGGERED, false), 4);
         }
     }
 
