@@ -5,6 +5,7 @@ plugins {
 	id "org.ajoberstar.grgit" version "3.1.0"
 }
 
+def version_raw = project.mod_version
 version = project.mod_version + "+" + getBranch()
 group = project.maven_group
 
@@ -119,7 +120,7 @@ build {
 
 task projectVersion {
   doLast {
-    println(project.findProperty('rootProject').version)
+    println(version_raw)
   }
 }
 
