@@ -4,7 +4,9 @@ import com.herdlicka.igneousmachines.IgneousMachinesMod;
 import com.herdlicka.igneousmachines.inventory.ImplementedInventory;
 import com.herdlicka.igneousmachines.block.IgneousCrafterBlock;
 import com.herdlicka.igneousmachines.screen.IgneousCrafterScreenHandler;
+import com.herdlicka.igneousmachines.screen.NothingScreenHandler;
 import com.herdlicka.igneousmachines.util.ItemStackUtils;
+import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -12,12 +14,14 @@ import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.Inventories;
-import net.minecraft.inventory.RecipeInputInventory;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeInputProvider;
@@ -39,11 +43,13 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory, RecipeInputInventory, SidedInventory, RecipeUnlocker, RecipeInputProvider {
+public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory, SidedInventory, RecipeUnlocker, RecipeInputProvider {
 
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(29, ItemStack.EMPTY);
+    private final CraftingInventory craftingInventory;
 
     private static final int[] TOP_SLOTS = new int[]{11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28};
     private static final int[] BOTTOM_SLOTS = new int[]{10};
@@ -61,7 +67,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
     int craftTime;
     int craftTimeTotal = DEFAULT_CRAFT_TIME;
 
-    protected final PropertyDelegate propertyDelegate = new PropertyDelegate(){
+    protected final PropertyDelegate propertyDelegate = new PropertyDelegate() {
 
         @Override
         public int get(int index) {
@@ -110,11 +116,12 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
         }
     };
     private final Object2IntOpenHashMap<Identifier> recipesUsed = new Object2IntOpenHashMap();
-    private final RecipeManager.MatchGetter<RecipeInputInventory, ? extends Recipe<RecipeInputInventory>> matchGetter;
+    private final RecipeManager.MatchGetter<CraftingInventory, ? extends CraftingRecipe> matchGetter;
 
     public IgneousCrafterBlockEntity(BlockPos pos, BlockState state) {
         super(IgneousMachinesMod.IGNEOUS_CRAFTER_BLOCK_ENTITY, pos, state);
         this.matchGetter = RecipeManager.createCachedMatchGetter(RecipeType.CRAFTING);
+        this.craftingInventory = new CraftingInventory(new NothingScreenHandler(), 3, 3);
     }
 
     @Override
@@ -170,12 +177,12 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
     @Override
     public void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
-        nbt.putShort("BurnTime", (short)this.burnTime);
-        nbt.putShort("CraftTime", (short)this.craftTime);
-        nbt.putShort("CraftTimeTotal", (short)this.craftTimeTotal);
+        nbt.putShort("BurnTime", (short) this.burnTime);
+        nbt.putShort("CraftTime", (short) this.craftTime);
+        nbt.putShort("CraftTimeTotal", (short) this.craftTimeTotal);
         Inventories.writeNbt(nbt, this.inventory);
         NbtCompound nbtCompound = new NbtCompound();
-        this.recipesUsed.forEach((identifier, count) -> nbtCompound.putInt(identifier.toString(), (int)count));
+        this.recipesUsed.forEach((identifier, count) -> nbtCompound.putInt(identifier.toString(), (int) count));
         nbt.put("RecipesUsed", nbtCompound);
     }
 
@@ -189,7 +196,10 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
         ItemStack fuelStack = blockEntity.inventory.get(9);
         hasFuel = !fuelStack.isEmpty();
         if (blockEntity.isBurning() || hasFuel) {
-            Recipe recipe = blockEntity.matchGetter.getFirstMatch(blockEntity, world).orElse(null);
+            for (int i = 0; i < 9; i++) {
+                blockEntity.craftingInventory.setStack(i, blockEntity.inventory.get(i));
+            }
+            Recipe recipe = blockEntity.matchGetter.getFirstMatch(blockEntity.craftingInventory, world).orElse(null);
             int i = blockEntity.getMaxCountPerStack();
             if (!blockEntity.isBurning() && canAcceptRecipeOutput(world.getRegistryManager(), recipe, blockEntity.inventory, i)) {
                 blockEntity.fuelTime = blockEntity.burnTime = blockEntity.getFuelTime(fuelStack);
@@ -283,7 +293,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
         if (!ItemStack.areItemsEqual(outputSlotStack, resultStack)) {
             return false;
         }
-        if (outputSlotStack.getCount() + resultStack.getCount()  <= count && outputSlotStack.getCount() + resultStack.getCount() <= outputSlotStack.getMaxCount()) {
+        if (outputSlotStack.getCount() + resultStack.getCount() <= count && outputSlotStack.getCount() + resultStack.getCount() <= outputSlotStack.getMaxCount()) {
             return true;
         }
         return false;
@@ -336,8 +346,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
     public boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir) {
         if (slot == 9) {
             return ItemStackUtils.isFuel(stack);
-        }
-        else if (slot > 10 && slot <= 28) {
+        } else if (slot > 10 && slot <= 28) {
             return true;
         }
 
@@ -355,7 +364,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
 
     @Override
     public void provideRecipeInputs(RecipeMatcher finder) {
-        for (int i = 0; i < 9; i ++) {
+        for (int i = 0; i < 9; i++) {
             finder.addUnenchantedInput(inventory.get(i));
         }
     }
@@ -374,18 +383,4 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
         return null;
     }
 
-    @Override
-    public int getWidth() {
-        return 3;
-    }
-
-    @Override
-    public int getHeight() {
-        return 3;
-    }
-
-    @Override
-    public List<ItemStack> getInputStacks() {
-        return inventory.subList(0, 9);
-    }
 }

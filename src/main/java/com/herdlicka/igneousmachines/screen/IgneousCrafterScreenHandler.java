@@ -1,11 +1,12 @@
 package com.herdlicka.igneousmachines.screen;
 
 import com.herdlicka.igneousmachines.IgneousMachinesMod;
-import com.herdlicka.igneousmachines.util.ItemStackUtils;
-import com.herdlicka.igneousmachines.slot.TemplateSlot;
 import com.herdlicka.igneousmachines.slot.FuelSlot;
+import com.herdlicka.igneousmachines.slot.TemplateSlot;
+import com.herdlicka.igneousmachines.util.ItemStackUtils;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
@@ -22,6 +23,7 @@ import net.minecraft.screen.slot.Slot;
 public class IgneousCrafterScreenHandler extends AbstractRecipeScreenHandler<Inventory> {
 
     private final Inventory inventory;
+    private final CraftingInventory craftingInventory;
     private final PlayerEntity player;
 
     private final PropertyDelegate propertyDelegate;
@@ -39,6 +41,7 @@ public class IgneousCrafterScreenHandler extends AbstractRecipeScreenHandler<Inv
         super(IgneousMachinesMod.IGNEOUS_CRAFTER_SCREEN_HANDLER, syncId);
         checkSize(inventory, 29);
         this.inventory = inventory;
+        this.craftingInventory = new CraftingInventory(new NothingScreenHandler(), 3, 3);
         this.player = playerInventory.player;
 
         this.propertyDelegate = propertyDelegate;
@@ -129,7 +132,10 @@ public class IgneousCrafterScreenHandler extends AbstractRecipeScreenHandler<Inv
 
     @Override
     public boolean matches(Recipe recipe) {
-        return recipe.matches(this.inventory, this.player.getWorld());
+        for (int i = 0; i < 9; i++) {
+            craftingInventory.setStack(i, inventory.getStack(i));
+        }
+        return recipe.matches(craftingInventory, this.player.getWorld());
     }
 
     @Override
