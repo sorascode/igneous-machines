@@ -6,7 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
-import net.minecraft.block.FacingBlock;
+import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
@@ -34,7 +34,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class IgneousMinerBlock extends BlockWithEntity {
-    public static final DirectionProperty FACING = FacingBlock.FACING;
+    public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
     public static final BooleanProperty LIT = Properties.LIT;
     public static final BooleanProperty TRIGGERED = Properties.TRIGGERED;
 
@@ -50,7 +50,7 @@ public class IgneousMinerBlock extends BlockWithEntity {
 
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return this.getDefaultState().with(FACING, ctx.getPlayerLookDirection().getOpposite());
+        return this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing().getOpposite());
     }
 
     @Override
@@ -128,21 +128,20 @@ public class IgneousMinerBlock extends BlockWithEntity {
         if (!state.get(LIT)) {
             return;
         }
-        double d = (double)pos.getX() + 0.5;
-        double e = pos.getY();
-        double f = (double)pos.getZ() + 0.5;
+        double x = (double)pos.getX() + 0.5;
+        double y = pos.getY();
+        double z = (double)pos.getZ() + 0.5;
         if (random.nextDouble() < 0.1) {
-            world.playSound(d, e, f, SoundEvents.BLOCK_FURNACE_FIRE_CRACKLE, SoundCategory.BLOCKS, 1.0f, 1.0f, false);
+            world.playSound(x, y, z, SoundEvents.BLOCK_FURNACE_FIRE_CRACKLE, SoundCategory.BLOCKS, 1.0f, 1.0f, false);
         }
         Direction direction = state.get(FACING);
         Direction.Axis axis = direction.getAxis();
-        double g = 0.52;
-        double h = random.nextDouble() * 0.6 - 0.3;
-        double i = axis == Direction.Axis.X ? (double)direction.getOffsetX() * 0.52 : h;
-        double j = random.nextDouble() * 6.0 / 16.0;
-        double k = axis == Direction.Axis.Z ? (double)direction.getOffsetZ() * 0.52 : h;
-        world.addParticle(ParticleTypes.SMOKE, d + i, e + j, f + k, 0.0, 0.0, 0.0);
-        world.addParticle(ParticleTypes.FLAME, d + i, e + j, f + k, 0.0, 0.0, 0.0);
+        double ranValue = random.nextDouble() * 0.6 - 0.3;
+        double xdelta = axis == Direction.Axis.X ? -(double)direction.getOffsetX() * 0.52 : ranValue;
+        double ydelta = random.nextDouble() * 6.0 / 16.0;
+        double zdelta = axis == Direction.Axis.Z ? -(double)direction.getOffsetZ() * 0.52 : ranValue;
+        world.addParticle(ParticleTypes.SMOKE, x + xdelta, y + ydelta, z + zdelta, 0.0, 0.0, 0.0);
+        world.addParticle(ParticleTypes.FLAME, x + xdelta, y + ydelta, z + zdelta, 0.0, 0.0, 0.0);
     }
 
     @Override
