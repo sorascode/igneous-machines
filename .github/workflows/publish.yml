@@ -58,7 +58,7 @@ jobs:
           curseforge-id: 881761
           curseforge-token: ${{ secrets.TOKEN_CURSEFORGE }}
 
-          github-tag: 1.19.2
+          github-tag: mc1.19.2
           github-generate-changelog: true
           github-token: ${{ secrets.TOKEN_GITHUB }}
 
