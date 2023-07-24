@@ -81,13 +81,18 @@ public class IgneousMinerBlock extends BlockWithEntity {
 
     @Override
     public void neighborUpdate(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify) {
-        boolean bl = world.isReceivingRedstonePower(pos) || world.isReceivingRedstonePower(pos.up());
-        boolean bl2 = state.get(TRIGGERED);
-        if (bl && !bl2) {
-            world.scheduleBlockTick(pos, this, 4);
-            world.setBlockState(pos, state.with(TRIGGERED, true), Block.NO_REDRAW);
-        } else if (!bl && bl2) {
-            world.setBlockState(pos, state.with(TRIGGERED, false), Block.NO_REDRAW);
+        if (!world.isClient) {
+            this.updatePowered(world, pos, state);
+        }
+    }
+
+
+    public void onBlockAdded(BlockState state, World world, BlockPos pos, BlockState oldState, boolean notify) {
+        if (!oldState.isOf(state.getBlock())) {
+            if (!world.isClient && world.getBlockEntity(pos) == null) {
+                this.updatePowered(world, pos, state);
+            }
+
         }
     }
 
@@ -97,6 +102,10 @@ public class IgneousMinerBlock extends BlockWithEntity {
         BlockEntity blockEntity;
         if (itemStack.hasCustomName() && (blockEntity = world.getBlockEntity(pos)) instanceof IgneousMinerBlockEntity) {
 //            ((IgneousPlacerBlockEntity)blockEntity).setCustomName(itemStack.getName());
+        }
+
+        if (!world.isClient) {
+            this.updatePowered(world, pos, state);
         }
     }
 
@@ -128,18 +137,18 @@ public class IgneousMinerBlock extends BlockWithEntity {
         if (!state.get(LIT)) {
             return;
         }
-        double x = (double)pos.getX() + 0.5;
+        double x = (double) pos.getX() + 0.5;
         double y = pos.getY();
-        double z = (double)pos.getZ() + 0.5;
+        double z = (double) pos.getZ() + 0.5;
         if (random.nextDouble() < 0.1) {
             world.playSound(x, y, z, SoundEvents.BLOCK_FURNACE_FIRE_CRACKLE, SoundCategory.BLOCKS, 1.0f, 1.0f, false);
         }
         Direction direction = state.get(FACING);
         Direction.Axis axis = direction.getAxis();
         double ranValue = random.nextDouble() * 0.6 - 0.3;
-        double xdelta = axis == Direction.Axis.X ? -(double)direction.getOffsetX() * 0.52 : ranValue;
+        double xdelta = axis == Direction.Axis.X ? -(double) direction.getOffsetX() * 0.52 : ranValue;
         double ydelta = random.nextDouble() * 6.0 / 16.0;
-        double zdelta = axis == Direction.Axis.Z ? -(double)direction.getOffsetZ() * 0.52 : ranValue;
+        double zdelta = axis == Direction.Axis.Z ? -(double) direction.getOffsetZ() * 0.52 : ranValue;
         world.addParticle(ParticleTypes.SMOKE, x + xdelta, y + ydelta, z + zdelta, 0.0, 0.0, 0.0);
         world.addParticle(ParticleTypes.FLAME, x + xdelta, y + ydelta, z + zdelta, 0.0, 0.0, 0.0);
     }
@@ -153,5 +162,15 @@ public class IgneousMinerBlock extends BlockWithEntity {
     @Nullable
     protected static <T extends BlockEntity> BlockEntityTicker<T> checkType(World world, BlockEntityType<T> givenType, BlockEntityType<? extends IgneousMinerBlockEntity> expectedType) {
         return world.isClient ? null : checkType(givenType, expectedType, IgneousMinerBlockEntity::tick);
+    }
+
+    private void updatePowered(World world, BlockPos pos, BlockState state) {
+        boolean bl = world.isReceivingRedstonePower(pos) || world.isReceivingRedstonePower(pos.up());
+        boolean bl2 = state.get(TRIGGERED);
+        if (bl && !bl2) {
+            world.setBlockState(pos, state.with(TRIGGERED, true), Block.NO_REDRAW);
+        } else if (!bl && bl2) {
+            world.setBlockState(pos, state.with(TRIGGERED, false), Block.NO_REDRAW);
+        }
     }
 }
