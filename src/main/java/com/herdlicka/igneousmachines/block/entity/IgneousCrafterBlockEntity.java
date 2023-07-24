@@ -4,6 +4,7 @@ import com.herdlicka.igneousmachines.IgneousMachinesMod;
 import com.herdlicka.igneousmachines.inventory.ImplementedInventory;
 import com.herdlicka.igneousmachines.block.IgneousCrafterBlock;
 import com.herdlicka.igneousmachines.screen.IgneousCrafterScreenHandler;
+import com.herdlicka.igneousmachines.screen.NothingScreenHandler;
 import com.herdlicka.igneousmachines.util.ItemStackUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.block.Block;
@@ -12,6 +13,7 @@ import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.inventory.SidedInventory;
@@ -44,6 +46,7 @@ import java.util.List;
 public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory, RecipeInputInventory, SidedInventory, RecipeUnlocker, RecipeInputProvider {
 
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(29, ItemStack.EMPTY);
+    private final CraftingInventory craftingInventory;
 
     private static final int[] TOP_SLOTS = new int[]{11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28};
     private static final int[] BOTTOM_SLOTS = new int[]{10};
@@ -115,6 +118,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
     public IgneousCrafterBlockEntity(BlockPos pos, BlockState state) {
         super(IgneousMachinesMod.IGNEOUS_CRAFTER_BLOCK_ENTITY, pos, state);
         this.matchGetter = RecipeManager.createCachedMatchGetter(RecipeType.CRAFTING);
+        this.craftingInventory = new CraftingInventory(new NothingScreenHandler(), 3, 3);
     }
 
     @Override
@@ -189,7 +193,10 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
         ItemStack fuelStack = blockEntity.inventory.get(9);
         hasFuel = !fuelStack.isEmpty();
         if (blockEntity.isBurning() || hasFuel) {
-            Recipe recipe = blockEntity.matchGetter.getFirstMatch(blockEntity, world).orElse(null);
+            for (int i = 0; i < 9; i++) {
+                blockEntity.craftingInventory.setStack(i, blockEntity.inventory.get(i));
+            }
+            Recipe recipe = blockEntity.matchGetter.getFirstMatch(blockEntity.craftingInventory, world).orElse(null);
             int i = blockEntity.getMaxCountPerStack();
             if (!blockEntity.isBurning() && canAcceptRecipeOutput(world.getRegistryManager(), recipe, blockEntity.inventory, i)) {
                 blockEntity.fuelTime = blockEntity.burnTime = blockEntity.getFuelTime(fuelStack);
