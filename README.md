@@ -1,4 +1,7 @@
 # Igneous Machines
+[![modrinth](https://img.shields.io/modrinth/dt/igneous-machines?label=Modrinth&labelColor=303030&color=288f53&logo=Modrinth)](https://modrinth.com/mod/igneous-machines)
+[![curseforge](http://cf.way2muchnoise.eu/full_881761_downloads(303030-b54b2f-fff-010101-ef6540).svg)](https://www.curseforge.com/minecraft/mc-mods/igneous-machines)
+
 Igneous Machines adds a few simple vanilla-like machines that enable automating your world.
 
 ## Machines Added
