@@ -8,6 +8,7 @@ import com.herdlicka.igneousmachines.screen.IgneousMinerScreenHandler;
 import com.herdlicka.igneousmachines.util.ItemStackUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.CropBlock;
 import net.minecraft.block.OperatorBlock;
 import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
@@ -17,6 +18,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.SidedInventory;
+import net.minecraft.item.HoeItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.context.LootContext;
@@ -232,6 +234,10 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
         }
 
         ItemStack toolStack = slots.get(10);
+
+        if (toolStack.getItem() instanceof HoeItem && blockState.getBlock() instanceof CropBlock) {
+            return ((CropBlock) blockState.getBlock()).isMature(blockState);
+        }
 
         if (!toolStack.isSuitableFor(blockState)) {
             return false;
