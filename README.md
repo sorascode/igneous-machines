@@ -28,3 +28,7 @@ It also allows for inserting/extracting items via hoppers from different sides. 
 The **Depositer** works like a Dropper/Dispenser, but it is instead able to place blocks in front of it.
 
 ![Igneous Crafter](https://cdn-raw.modrinth.com/data/i4mUEhXw/images/e5f3d8443ad47340650cf3528a22a96784a40e83.png)
+
+## Contact
+
+If you wish to contact me you can do so on Discord, my username there is **0xf00**.
