@@ -1,3 +1,2 @@
-Features:
-* The Igneous Miner can now farm mature crops with a hoe
-* The Igneous Miner supports modded tools (no guarantee)
+Fixes:
+ * Igneous Crafter supports recipes with multiple variants (the one in the template is used)

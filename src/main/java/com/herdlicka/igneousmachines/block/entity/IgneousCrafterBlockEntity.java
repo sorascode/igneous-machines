@@ -256,11 +256,11 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
         }
 
         var foundSlots = new ArrayList<ItemStack>();
-        for (Ingredient ingredient : recipe.getIngredients()) {
-            if (ingredient.getMatchingStacks().length == 0) {
+        for (int i = 0; i < 9; i++) {
+            var stack = slots.get(i);
+            if (stack.isEmpty()) {
                 continue;
             }
-            var stack = ingredient.getMatchingStacks()[0];
             var availableSlots = slots.subList(11, 29);
             boolean slotFound = false;
             for (ItemStack availableSlot : availableSlots) {
@@ -300,11 +300,11 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
         if (recipe == null || !canAcceptRecipeOutput(registryManager, recipe, slots, count)) {
             return false;
         }
-        for (Ingredient ingredient : recipe.getIngredients()) {
-            if (ingredient.getMatchingStacks().length == 0) {
+        for (int i = 0; i < 9; i++) {
+            var stack = slots.get(i);
+            if (stack.isEmpty()) {
                 continue;
             }
-            var stack = ingredient.getMatchingStacks()[0];
             var availableSlots = slots.subList(11, 29);
             boolean slotFound = false;
             for (ItemStack availableSlot : availableSlots) {
