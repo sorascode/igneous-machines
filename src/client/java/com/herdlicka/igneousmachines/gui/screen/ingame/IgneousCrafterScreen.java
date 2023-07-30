@@ -1,5 +1,6 @@
 package com.herdlicka.igneousmachines.gui.screen.ingame;
 
+import com.herdlicka.igneousmachines.gui.screen.slot.OutputGhostSlot;
 import com.herdlicka.igneousmachines.screen.IgneousCrafterScreenHandler;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
@@ -10,6 +11,7 @@ import net.minecraft.client.gui.screen.recipebook.RecipeBookWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.text.Text;
@@ -26,6 +28,8 @@ public class IgneousCrafterScreen extends HandledScreen<IgneousCrafterScreenHand
     protected int blockInventoryTitleX;
     protected int blockInventoryTitleY;
     protected Text blockInventoryTitle;
+
+    protected final OutputGhostSlot outputSlot = new OutputGhostSlot();
 
     public IgneousCrafterScreen(IgneousCrafterScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
@@ -72,6 +76,9 @@ public class IgneousCrafterScreen extends HandledScreen<IgneousCrafterScreenHand
         }
         this.drawMouseoverTooltip(matrices, mouseX, mouseY);
         this.recipeBook.drawTooltip(matrices, this.x, this.y, mouseX, mouseY);
+        if (!this.handler.slots.get(0).hasStack()) {
+            this.outputSlot.draw(context, this.client, x, y, mouseX, mouseY);
+        }
     }
 
     @Override
@@ -113,10 +120,21 @@ public class IgneousCrafterScreen extends HandledScreen<IgneousCrafterScreenHand
         return this.recipeBook;
     }
 
+    ItemStack currentRecipeOutput;
+
     @Override
     public void handledScreenTick() {
         super.handledScreenTick();
         this.recipeBook.update();
+        if (currentRecipeOutput != handler.recipeOutput()) {
+            if (handler.recipeOutput().isEmpty()) {
+                this.outputSlot.reset();
+            }
+            else {
+                this.outputSlot.setResult(handler.recipeOutput());
+            }
+            this.currentRecipeOutput = handler.recipeOutput();
+        }
     }
 
     @Override
@@ -138,6 +156,8 @@ public class IgneousCrafterScreen extends HandledScreen<IgneousCrafterScreenHand
         this.setInitialFocus(this.recipeBook);
         // Center the title
         titleX = (backgroundWidth - textRenderer.getWidth(title)) / 2;
+
+        this.outputSlot.setPos(handler.slots.get(0).x, handler.slots.get(0).y);
     }
 }
 

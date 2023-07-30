@@ -54,7 +54,7 @@ public class IgneousMachinesMod implements ModInitializer {
         IGNEOUS_CRAFTER_BLOCK = Registry.register(Registry.BLOCK, IGNEOUS_CRAFTER, new IgneousCrafterBlock(FabricBlockSettings.copyOf(Blocks.FURNACE)));
         IGNEOUS_CRAFTER_BLOCK_ITEM = Registry.register(Registry.ITEM, IGNEOUS_CRAFTER, new BlockItem(IGNEOUS_CRAFTER_BLOCK, new FabricItemSettings().group(ItemGroup.REDSTONE)));
         IGNEOUS_CRAFTER_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, IGNEOUS_CRAFTER, FabricBlockEntityTypeBuilder.create(IgneousCrafterBlockEntity::new, IGNEOUS_CRAFTER_BLOCK).build(null));
-        IGNEOUS_CRAFTER_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(IGNEOUS_CRAFTER, IgneousCrafterScreenHandler::new);
+        IGNEOUS_CRAFTER_SCREEN_HANDLER = ScreenHandlerRegistry.registerExtended(IGNEOUS_CRAFTER, IgneousCrafterScreenHandler::new);
 
         DEPOSITER_BLOCK = Registry.register(Registry.BLOCK, DEPOSITER, new DepositerBlock(FabricBlockSettings.copyOf(Blocks.DISPENSER)));
         DEPOSITER_BLOCK_ITEM = Registry.register(Registry.ITEM, DEPOSITER, new BlockItem(DEPOSITER_BLOCK, new FabricItemSettings().group(ItemGroup.REDSTONE)));
