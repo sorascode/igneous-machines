@@ -36,11 +36,11 @@ public class OutputGhostSlot {
         int j = this.x + x;
         int k = this.y + y;
         ItemRenderer itemRenderer = client.getItemRenderer();
-        itemRenderer.renderInGui(matrices, result, j, k);
+        itemRenderer.renderInGui(result, j, k);
         RenderSystem.depthFunc(516);
         DrawableHelper.fill(matrices, j, k, j + 16, k + 16, 822083583);
         RenderSystem.depthFunc(515);
-        itemRenderer.renderGuiItemOverlay(matrices, client.textRenderer, result, j, k);
+        itemRenderer.renderGuiItemOverlay(client.textRenderer, result, j, k);
     }
 
     public void drawTooltip(MatrixStack matrices, MinecraftClient client, int x, int y, int mouseX, int mouseY) {

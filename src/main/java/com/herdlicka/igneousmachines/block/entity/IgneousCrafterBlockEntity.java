@@ -31,7 +31,6 @@ import net.minecraft.recipe.RecipeManager;
 import net.minecraft.recipe.RecipeMatcher;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.RecipeUnlocker;
-import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -206,7 +205,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
         }
         if (blockEntity.isBurning() || hasFuel) {
             int i = blockEntity.getMaxCountPerStack();
-            if (!blockEntity.isBurning() && canAcceptRecipeOutput(world.getRegistryManager(), blockEntity.recipe, blockEntity.inventory, i)) {
+            if (!blockEntity.isBurning() && canAcceptRecipeOutput(blockEntity.recipe, blockEntity.inventory, i)) {
                 blockEntity.fuelTime = blockEntity.burnTime = blockEntity.getFuelTime(fuelStack);
                 if (blockEntity.isBurning()) {
                     stateChanged = true;
@@ -220,12 +219,12 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
                     }
                 }
             }
-            if (blockEntity.isBurning() && canAcceptRecipeOutput(world.getRegistryManager(), blockEntity.recipe, blockEntity.inventory, i)) {
+            if (blockEntity.isBurning() && canAcceptRecipeOutput(blockEntity.recipe, blockEntity.inventory, i)) {
                 ++blockEntity.craftTime;
                 if (blockEntity.craftTime == blockEntity.craftTimeTotal) {
                     blockEntity.craftTime = 0;
                     blockEntity.craftTimeTotal = getCraftTime();
-                    if (craftRecipe(world.getRegistryManager(), blockEntity.recipe, blockEntity.inventory, i)) {
+                    if (craftRecipe(blockEntity.recipe, blockEntity.inventory, i)) {
                         blockEntity.setLastRecipe(blockEntity.recipe);
                     }
                     stateChanged = true;
@@ -253,12 +252,12 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
         }
     }
 
-    private static boolean canAcceptRecipeOutput(DynamicRegistryManager registryManager, @Nullable Recipe<?> recipe, DefaultedList<ItemStack> slots, int count) {
+    private static boolean canAcceptRecipeOutput(@Nullable Recipe<?> recipe, DefaultedList<ItemStack> slots, int count) {
         if (recipe == null) {
             return false;
         }
 
-        ItemStack resultStack = recipe.getOutput(registryManager);
+        ItemStack resultStack = recipe.getOutput();
         if (resultStack.isEmpty()) {
             return false;
         }
@@ -304,8 +303,8 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
         return false;
     }
 
-    private static boolean craftRecipe(DynamicRegistryManager registryManager, @Nullable Recipe<?> recipe, DefaultedList<ItemStack> slots, int count) {
-        if (recipe == null || !canAcceptRecipeOutput(registryManager, recipe, slots, count)) {
+    private static boolean craftRecipe(@Nullable Recipe<?> recipe, DefaultedList<ItemStack> slots, int count) {
+        if (recipe == null || !canAcceptRecipeOutput(recipe, slots, count)) {
             return false;
         }
         for (int i = 0; i < 9; i++) {
@@ -326,7 +325,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
                 return false;
             }
         }
-        ItemStack itemStack2 = recipe.getOutput(registryManager);
+        ItemStack itemStack2 = recipe.getOutput();
         ItemStack itemStack3 = slots.get(10);
         if (itemStack3.isEmpty()) {
             slots.set(10, itemStack2.copy());
@@ -397,7 +396,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
         if (recipe == null) {
             recipeOutput = ItemStack.EMPTY;
         } else {
-            recipeOutput = recipe.getOutput(world.getRegistryManager());
+            recipeOutput = recipe.getOutput();
         }
         this.recipeInitialized = true;
 
