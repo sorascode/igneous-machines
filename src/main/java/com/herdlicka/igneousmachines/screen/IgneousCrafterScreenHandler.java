@@ -1,14 +1,15 @@
 package com.herdlicka.igneousmachines.screen;
 
 import com.herdlicka.igneousmachines.IgneousMachinesMod;
-import com.herdlicka.igneousmachines.util.ItemStackUtils;
-import com.herdlicka.igneousmachines.slot.TemplateSlot;
 import com.herdlicka.igneousmachines.slot.FuelSlot;
+import com.herdlicka.igneousmachines.slot.TemplateSlot;
+import com.herdlicka.igneousmachines.util.ItemStackUtils;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeInputProvider;
 import net.minecraft.recipe.RecipeMatcher;
@@ -26,11 +27,14 @@ public class IgneousCrafterScreenHandler extends AbstractRecipeScreenHandler<Inv
 
     private final PropertyDelegate propertyDelegate;
 
+    private ItemStack recipeOutput;
+
     //This constructor gets called on the client when the server wants it to open the screenHandler,
     //The client will call the other constructor with an empty Inventory and the screenHandler will automatically
     //sync this empty inventory with the inventory on the server.
-    public IgneousCrafterScreenHandler(int syncId, PlayerInventory playerInventory) {
+    public IgneousCrafterScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
         this(syncId, playerInventory, new SimpleInventory(29), new ArrayPropertyDelegate(4));
+        this.recipeOutput = buf.readItemStack();
     }
 
     //This constructor gets called from the BlockEntity on the server without calling the other constructor first, the server knows the inventory of the container
@@ -181,6 +185,10 @@ public class IgneousCrafterScreenHandler extends AbstractRecipeScreenHandler<Inv
 
     public boolean isBurning() {
         return this.propertyDelegate.get(0) > 0;
+    }
+
+    public ItemStack recipeOutput() {
+        return this.recipeOutput;
     }
 }
 

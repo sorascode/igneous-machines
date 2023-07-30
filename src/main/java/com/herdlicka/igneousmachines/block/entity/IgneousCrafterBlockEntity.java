@@ -1,12 +1,13 @@
 package com.herdlicka.igneousmachines.block.entity;
 
 import com.herdlicka.igneousmachines.IgneousMachinesMod;
-import com.herdlicka.igneousmachines.inventory.ImplementedInventory;
 import com.herdlicka.igneousmachines.block.IgneousCrafterBlock;
+import com.herdlicka.igneousmachines.inventory.ImplementedInventory;
 import com.herdlicka.igneousmachines.screen.IgneousCrafterScreenHandler;
 import com.herdlicka.igneousmachines.screen.NothingScreenHandler;
 import com.herdlicka.igneousmachines.util.ItemStackUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
@@ -20,7 +21,7 @@ import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.recipe.Ingredient;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeInputProvider;
 import net.minecraft.recipe.RecipeManager;
@@ -28,9 +29,9 @@ import net.minecraft.recipe.RecipeMatcher;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.RecipeUnlocker;
 import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
@@ -43,7 +44,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory, RecipeInputInventory, SidedInventory, RecipeUnlocker, RecipeInputProvider {
+public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory, RecipeInputInventory, SidedInventory, RecipeUnlocker, RecipeInputProvider {
 
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(29, ItemStack.EMPTY);
     private final CraftingInventory craftingInventory;
@@ -63,6 +64,11 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
     int fuelTime;
     int craftTime;
     int craftTimeTotal = DEFAULT_CRAFT_TIME;
+
+    Recipe recipe = null;
+    ItemStack recipeOutput = ItemStack.EMPTY;
+
+    boolean recipeInitialized = false;
 
     protected final PropertyDelegate propertyDelegate = new PropertyDelegate(){
 
@@ -192,13 +198,12 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
         }
         ItemStack fuelStack = blockEntity.inventory.get(9);
         hasFuel = !fuelStack.isEmpty();
+        if (!blockEntity.recipeInitialized) {
+            blockEntity.markDirty();
+        }
         if (blockEntity.isBurning() || hasFuel) {
-            for (int i = 0; i < 9; i++) {
-                blockEntity.craftingInventory.setStack(i, blockEntity.inventory.get(i));
-            }
-            Recipe recipe = blockEntity.matchGetter.getFirstMatch(blockEntity.craftingInventory, world).orElse(null);
             int i = blockEntity.getMaxCountPerStack();
-            if (!blockEntity.isBurning() && canAcceptRecipeOutput(world.getRegistryManager(), recipe, blockEntity.inventory, i)) {
+            if (!blockEntity.isBurning() && canAcceptRecipeOutput(world.getRegistryManager(), blockEntity.recipe, blockEntity.inventory, i)) {
                 blockEntity.fuelTime = blockEntity.burnTime = blockEntity.getFuelTime(fuelStack);
                 if (blockEntity.isBurning()) {
                     stateChanged = true;
@@ -212,13 +217,13 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
                     }
                 }
             }
-            if (blockEntity.isBurning() && canAcceptRecipeOutput(world.getRegistryManager(), recipe, blockEntity.inventory, i)) {
+            if (blockEntity.isBurning() && canAcceptRecipeOutput(world.getRegistryManager(), blockEntity.recipe, blockEntity.inventory, i)) {
                 ++blockEntity.craftTime;
                 if (blockEntity.craftTime == blockEntity.craftTimeTotal) {
                     blockEntity.craftTime = 0;
                     blockEntity.craftTimeTotal = getCraftTime();
-                    if (craftRecipe(world.getRegistryManager(), recipe, blockEntity.inventory, i)) {
-                        blockEntity.setLastRecipe(recipe);
+                    if (craftRecipe(world.getRegistryManager(), blockEntity.recipe, blockEntity.inventory, i)) {
+                        blockEntity.setLastRecipe(blockEntity.recipe);
                     }
                     stateChanged = true;
                 }
@@ -394,5 +399,25 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements NamedScree
     @Override
     public List<ItemStack> getInputStacks() {
         return inventory.subList(0, 9);
+    }
+
+    @Override
+    public void markDirty() {
+        for (int i = 0; i < 9; i++) {
+            craftingInventory.setStack(i, inventory.get(i));
+        }
+        recipe = matchGetter.getFirstMatch(craftingInventory, world).orElse(null);
+        if (recipe == null) {
+            recipeOutput = ItemStack.EMPTY;
+        }
+        else {
+            recipeOutput = recipe.getOutput(world.getRegistryManager());
+        }
+        this.recipeInitialized = true;
+    }
+
+    @Override
+    public void writeScreenOpeningData(ServerPlayerEntity serverPlayerEntity, PacketByteBuf packetByteBuf) {
+        packetByteBuf.writeItemStack(this.recipeOutput);
     }
 }
