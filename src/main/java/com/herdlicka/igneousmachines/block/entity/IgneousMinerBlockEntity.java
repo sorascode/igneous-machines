@@ -50,6 +50,8 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
     private static final int[] BOTTOM_SLOTS = new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8};
     private static final int[] SIDE_SLOTS = new int[]{9};
 
+    public static final int MINE_COOLDOWN = 12;
+
     public static final int BURN_TIME_PROPERTY_INDEX = 0;
     public static final int FUEL_TIME_PROPERTY_INDEX = 1;
     public static final int BREAK_PROGRESS_PROPERTY_INDEX = 2;
@@ -60,6 +62,7 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
     int fuelTime;
     float breakProgress;
     boolean hasBlock;
+    int mineCooldown;
 
     protected final PropertyDelegate propertyDelegate = new PropertyDelegate(){
 
@@ -112,6 +115,7 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
 
     public IgneousMinerBlockEntity(BlockPos pos, BlockState state) {
         super(IgneousMachinesMod.IGNEOUS_MINER_BLOCK_ENTITY, pos, state);
+        this.mineCooldown = -1;
     }
 
     @Override
@@ -153,6 +157,7 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
         this.burnTime = nbt.getShort("BurnTime");
         this.breakProgress = nbt.getShort("BreakTime");
         this.fuelTime = this.getFuelTime(this.inventory.get(9));
+        this.mineCooldown = nbt.getInt("MineCooldown");
     }
 
     @Override
@@ -160,10 +165,14 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
         super.writeNbt(nbt);
         nbt.putShort("BurnTime", (short)this.burnTime);
         nbt.putShort("BreakTime", (short)this.breakProgress);
+        nbt.putInt("MineCooldown", this.mineCooldown);
         Inventories.writeNbt(nbt, this.inventory);
     }
 
     public static void tick(World world, BlockPos pos, BlockState state, IgneousMinerBlockEntity blockEntity) {
+        if (blockEntity.mineCooldown > 0) {
+            --blockEntity.mineCooldown;
+        }
         ServerWorld serverWorld = (ServerWorld) world;
         boolean wasBurning = blockEntity.isBurning();
         boolean stateChanged = false;
@@ -183,6 +192,10 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
         BlockState blockState = world.getBlockState(blockPos);
 
         blockEntity.hasBlock = hasTool && !blockState.isAir() && toolStack.isSuitableFor(blockState);
+
+        if (blockEntity.needsCooldown()) {
+            return;
+        }
 
         if ((blockEntity.isBurning() || hasFuel) && hasTool && !isTriggered) {
             if (!blockEntity.isBurning() && canAcceptBlockOutput(serverWorld, blockPos, blockState, blockEntity.inventory)) {
@@ -296,6 +309,7 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
             slots.set(10, ItemStack.EMPTY);
         }
 
+        blockEntity.mineCooldown = MINE_COOLDOWN;
         return true;
     }
 
@@ -364,5 +378,9 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
         }
 
         return false;
+    }
+
+    private boolean needsCooldown() {
+        return this.mineCooldown > 0;
     }
 }
