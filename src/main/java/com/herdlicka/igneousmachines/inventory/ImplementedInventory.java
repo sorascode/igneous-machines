@@ -75,6 +75,9 @@ public interface ImplementedInventory extends Inventory {
         ItemStack result = Inventories.splitStack(getItems(), slot, count);
         if (!result.isEmpty()) {
             markDirty();
+            if (slot < 9) {
+                this.inputSlotsChanged();
+            }
         }
         return result;
     }
@@ -85,7 +88,11 @@ public interface ImplementedInventory extends Inventory {
      */
     @Override
     default ItemStack removeStack(int slot) {
-        return Inventories.removeStack(getItems(), slot);
+        var result =  Inventories.removeStack(getItems(), slot);
+        if (slot < 9) {
+            this.inputSlotsChanged();
+        }
+        return result;
     }
 
     /**
@@ -101,6 +108,9 @@ public interface ImplementedInventory extends Inventory {
         if (stack.getCount() > stack.getMaxCount()) {
             stack.setCount(stack.getMaxCount());
         }
+        if (slot < 9) {
+            this.inputSlotsChanged();
+        }
     }
 
     /**
@@ -109,6 +119,7 @@ public interface ImplementedInventory extends Inventory {
     @Override
     default void clear() {
         getItems().clear();
+        this.inputSlotsChanged();
     }
 
     /**
@@ -118,6 +129,10 @@ public interface ImplementedInventory extends Inventory {
      */
     @Override
     default void markDirty() {
+        // Override if you want behavior.
+    }
+
+    default void inputSlotsChanged() {
         // Override if you want behavior.
     }
 

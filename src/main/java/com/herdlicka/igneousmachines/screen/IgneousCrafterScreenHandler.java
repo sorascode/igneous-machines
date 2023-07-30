@@ -20,6 +20,7 @@ import net.minecraft.screen.ArrayPropertyDelegate;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.slot.FurnaceOutputSlot;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.util.math.BlockPos;
 
 public class IgneousCrafterScreenHandler extends AbstractRecipeScreenHandler<Inventory> {
 
@@ -29,6 +30,7 @@ public class IgneousCrafterScreenHandler extends AbstractRecipeScreenHandler<Inv
 
     private final PropertyDelegate propertyDelegate;
 
+    private BlockPos pos;
     private ItemStack recipeOutput;
 
     //This constructor gets called on the client when the server wants it to open the screenHandler,
@@ -36,6 +38,7 @@ public class IgneousCrafterScreenHandler extends AbstractRecipeScreenHandler<Inv
     //sync this empty inventory with the inventory on the server.
     public IgneousCrafterScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
         this(syncId, playerInventory, new SimpleInventory(29), new ArrayPropertyDelegate(4));
+        this.pos = buf.readBlockPos();
         this.recipeOutput = buf.readItemStack();
     }
 
@@ -195,6 +198,10 @@ public class IgneousCrafterScreenHandler extends AbstractRecipeScreenHandler<Inv
 
     public ItemStack recipeOutput() {
         return this.recipeOutput;
+    }
+
+    public BlockPos blockPos() {
+        return this.pos;
     }
 }
 

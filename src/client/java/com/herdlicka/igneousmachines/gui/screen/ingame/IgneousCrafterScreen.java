@@ -1,11 +1,13 @@
 package com.herdlicka.igneousmachines.gui.screen.ingame;
 
+import com.herdlicka.igneousmachines.IgneousMachinesMod;
 import com.herdlicka.igneousmachines.gui.screen.slot.OutputGhostSlot;
 import com.herdlicka.igneousmachines.screen.IgneousCrafterScreenHandler;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.screen.recipebook.RecipeBookProvider;
 import net.minecraft.client.gui.screen.recipebook.RecipeBookWidget;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
@@ -31,6 +33,8 @@ public class IgneousCrafterScreen extends HandledScreen<IgneousCrafterScreenHand
 
     protected final OutputGhostSlot outputSlot = new OutputGhostSlot();
 
+    private ItemStack outputResult = ItemStack.EMPTY;
+
     public IgneousCrafterScreen(IgneousCrafterScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
 
@@ -41,6 +45,17 @@ public class IgneousCrafterScreen extends HandledScreen<IgneousCrafterScreenHand
         blockInventoryTitleX = 8;
         blockInventoryTitleY = 77;
         blockInventoryTitle = Text.translatable(((TranslatableTextContent) title.getContent()).getKey() + ".inventory");
+
+        ClientPlayNetworking.unregisterReceiver(IgneousMachinesMod.RECIPE_CHANGE_PACKET_ID);
+        ClientPlayNetworking.registerReceiver(IgneousMachinesMod.RECIPE_CHANGE_PACKET_ID, (client, h, buf, responseSender) -> {
+            var posValue = buf.readBlockPos();
+            if (posValue.equals(handler.blockPos())) {
+                var stackValue = buf.readItemStack();
+                client.execute(() -> {
+                    this.outputResult = stackValue;
+                });
+            }
+        });
     }
 
     @Override
@@ -74,11 +89,12 @@ public class IgneousCrafterScreen extends HandledScreen<IgneousCrafterScreenHand
             super.render(matrices, mouseX, mouseY, delta);
             this.recipeBook.drawGhostSlots(matrices, this.x, this.y, true, delta);
         }
+        if (!this.handler.slots.get(0).hasStack()) {
+            this.outputSlot.draw(matrices, this.client, x, y);
+            this.outputSlot.drawTooltip(matrices, this.client, x, y, mouseX, mouseY);
+        }
         this.drawMouseoverTooltip(matrices, mouseX, mouseY);
         this.recipeBook.drawTooltip(matrices, this.x, this.y, mouseX, mouseY);
-        if (!this.handler.slots.get(0).hasStack()) {
-            this.outputSlot.draw(context, this.client, x, y, mouseX, mouseY);
-        }
     }
 
     @Override
@@ -100,7 +116,7 @@ public class IgneousCrafterScreen extends HandledScreen<IgneousCrafterScreenHand
 
     @Override
     protected boolean isClickOutsideBounds(double mouseX, double mouseY, int left, int top, int button) {
-        boolean bl = mouseX < (double)left || mouseY < (double)top || mouseX >= (double)(left + this.backgroundWidth) || mouseY >= (double)(top + this.backgroundHeight);
+        boolean bl = mouseX < (double) left || mouseY < (double) top || mouseX >= (double) (left + this.backgroundWidth) || mouseY >= (double) (top + this.backgroundHeight);
         return this.recipeBook.isClickOutsideBounds(mouseX, mouseY, this.x, this.y, this.backgroundWidth, this.backgroundHeight, button) && bl;
     }
 
@@ -126,14 +142,13 @@ public class IgneousCrafterScreen extends HandledScreen<IgneousCrafterScreenHand
     public void handledScreenTick() {
         super.handledScreenTick();
         this.recipeBook.update();
-        if (currentRecipeOutput != handler.recipeOutput()) {
-            if (handler.recipeOutput().isEmpty()) {
+        if (currentRecipeOutput != outputResult) {
+            if (outputResult.isEmpty()) {
                 this.outputSlot.reset();
+            } else {
+                this.outputSlot.setResult(outputResult);
             }
-            else {
-                this.outputSlot.setResult(handler.recipeOutput());
-            }
-            this.currentRecipeOutput = handler.recipeOutput();
+            this.currentRecipeOutput = outputResult;
         }
     }
 
@@ -158,6 +173,8 @@ public class IgneousCrafterScreen extends HandledScreen<IgneousCrafterScreenHand
         titleX = (backgroundWidth - textRenderer.getWidth(title)) / 2;
 
         this.outputSlot.setPos(handler.slots.get(0).x, handler.slots.get(0).y);
+
+        this.outputResult = handler.recipeOutput();
     }
 }
 
