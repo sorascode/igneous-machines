@@ -51,6 +51,7 @@ public class IgneousMachinesMod implements ModInitializer {
     public static final Identifier IGNEOUS_CRAFTER = new Identifier(MOD_ID, "igneous_crafter");
     public static final Identifier DEPOSITER = new Identifier(MOD_ID, "depositer");
     public static final Identifier IGNEOUS_MINER = new Identifier(MOD_ID, "igneous_miner");
+    public static final Identifier RECIPE_CHANGE_PACKET_ID = new Identifier(MOD_ID, "recipe_change");
 
     static {
         IGNEOUS_CRAFTER_BLOCK = Registry.register(Registries.BLOCK, IGNEOUS_CRAFTER, new IgneousCrafterBlock(FabricBlockSettings.copyOf(Blocks.FURNACE)));

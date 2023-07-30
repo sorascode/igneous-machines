@@ -7,6 +7,9 @@ import com.herdlicka.igneousmachines.screen.IgneousCrafterScreenHandler;
 import com.herdlicka.igneousmachines.screen.NothingScreenHandler;
 import com.herdlicka.igneousmachines.util.ItemStackUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -16,12 +19,12 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.Inventories;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeInputProvider;
 import net.minecraft.recipe.RecipeManager;
@@ -32,6 +35,7 @@ import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
@@ -42,9 +46,8 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory, RecipeInputInventory, SidedInventory, RecipeUnlocker, RecipeInputProvider {
+public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory, SidedInventory, RecipeUnlocker, RecipeInputProvider {
 
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(29, ItemStack.EMPTY);
     private final CraftingInventory craftingInventory;
@@ -70,7 +73,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
 
     boolean recipeInitialized = false;
 
-    protected final PropertyDelegate propertyDelegate = new PropertyDelegate(){
+    protected final PropertyDelegate propertyDelegate = new PropertyDelegate() {
 
         @Override
         public int get(int index) {
@@ -180,12 +183,12 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
     @Override
     public void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
-        nbt.putShort("BurnTime", (short)this.burnTime);
-        nbt.putShort("CraftTime", (short)this.craftTime);
-        nbt.putShort("CraftTimeTotal", (short)this.craftTimeTotal);
+        nbt.putShort("BurnTime", (short) this.burnTime);
+        nbt.putShort("CraftTime", (short) this.craftTime);
+        nbt.putShort("CraftTimeTotal", (short) this.craftTimeTotal);
         Inventories.writeNbt(nbt, this.inventory);
         NbtCompound nbtCompound = new NbtCompound();
-        this.recipesUsed.forEach((identifier, count) -> nbtCompound.putInt(identifier.toString(), (int)count));
+        this.recipesUsed.forEach((identifier, count) -> nbtCompound.putInt(identifier.toString(), (int) count));
         nbt.put("RecipesUsed", nbtCompound);
     }
 
@@ -199,7 +202,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
         ItemStack fuelStack = blockEntity.inventory.get(9);
         hasFuel = !fuelStack.isEmpty();
         if (!blockEntity.recipeInitialized) {
-            blockEntity.markDirty();
+            blockEntity.inputSlotsChanged();
         }
         if (blockEntity.isBurning() || hasFuel) {
             int i = blockEntity.getMaxCountPerStack();
@@ -295,7 +298,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
         if (!ItemStack.areItemsEqual(outputSlotStack, resultStack)) {
             return false;
         }
-        if (outputSlotStack.getCount() + resultStack.getCount()  <= count && outputSlotStack.getCount() + resultStack.getCount() <= outputSlotStack.getMaxCount()) {
+        if (outputSlotStack.getCount() + resultStack.getCount() <= count && outputSlotStack.getCount() + resultStack.getCount() <= outputSlotStack.getMaxCount()) {
             return true;
         }
         return false;
@@ -348,8 +351,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
     public boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir) {
         if (slot == 9) {
             return ItemStackUtils.isFuel(stack);
-        }
-        else if (slot > 10 && slot <= 28) {
+        } else if (slot > 10 && slot <= 28) {
             return true;
         }
 
@@ -367,7 +369,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
 
     @Override
     public void provideRecipeInputs(RecipeMatcher finder) {
-        for (int i = 0; i < 9; i ++) {
+        for (int i = 0; i < 9; i++) {
             finder.addUnenchantedInput(inventory.get(i));
         }
     }
@@ -387,22 +389,33 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
     }
 
     @Override
-    public void markDirty() {
+    public void inputSlotsChanged() {
         for (int i = 0; i < 9; i++) {
             craftingInventory.setStack(i, inventory.get(i));
         }
         recipe = matchGetter.getFirstMatch(craftingInventory, world).orElse(null);
         if (recipe == null) {
             recipeOutput = ItemStack.EMPTY;
-        }
-        else {
+        } else {
             recipeOutput = recipe.getOutput(world.getRegistryManager());
         }
         this.recipeInitialized = true;
+
+        if (world.isClient()) {
+            return;
+        }
+
+        for (ServerPlayerEntity player : PlayerLookup.tracking((ServerWorld) world, pos)) {
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeBlockPos(pos);
+            buf.writeItemStack(this.recipeOutput);
+            ServerPlayNetworking.send(player, IgneousMachinesMod.RECIPE_CHANGE_PACKET_ID, buf);
+        }
     }
 
     @Override
     public void writeScreenOpeningData(ServerPlayerEntity serverPlayerEntity, PacketByteBuf packetByteBuf) {
+        packetByteBuf.writeBlockPos(pos);
         packetByteBuf.writeItemStack(this.recipeOutput);
     }
 }
