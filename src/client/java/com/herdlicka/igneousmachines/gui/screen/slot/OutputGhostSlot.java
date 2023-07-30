@@ -26,7 +26,7 @@ public class OutputGhostSlot {
         this.y = y;
     }
 
-    public void draw(DrawContext context, MinecraftClient client, int x, int y, int mouseX, int mouseY) {
+    public void draw(DrawContext context, MinecraftClient client, int x, int y) {
         if (this.result == null || this.result.isEmpty()) {
             return;
         }
@@ -35,8 +35,14 @@ public class OutputGhostSlot {
         context.drawItemWithoutEntity(result, j, k);
         context.fill(RenderLayer.getGuiGhostRecipeOverlay(), j, k, j + 16, k + 16, 0x30FFFFFF);
         context.drawItemInSlot(client.textRenderer, result, j, k);
+    }
 
-        // Tooltip
+    public void drawTooltip(DrawContext context, MinecraftClient client, int x, int y, int mouseX, int mouseY) {
+        if (this.result == null || this.result.isEmpty()) {
+            return;
+        }
+        int j = this.x + x;
+        int k = this.y + y;
         if (mouseX >= j && mouseY >= k && mouseX < j + 16 && mouseY < k + 16) {
             if (result != null && client.currentScreen != null) {
                 context.drawTooltip(client.textRenderer, Screen.getTooltipFromItem(client, result), mouseX, mouseY);
