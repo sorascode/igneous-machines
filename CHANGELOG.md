@@ -1,2 +1,2 @@
 Features:
-* Igneous Miner now respect the Unbreaking enchantment of tools
+* Igneous Miner now respects the Unbreaking enchantment of tools
