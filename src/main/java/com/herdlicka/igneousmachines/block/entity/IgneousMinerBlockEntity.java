@@ -31,24 +31,21 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPointerImpl;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenHandlerFactory, ImplementedInventory, SidedInventory {
 
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(11, ItemStack.EMPTY);
 
-    private static final int[] TOP_SLOTS = new int[]{10};
-    private static final int[] BOTTOM_SLOTS = new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8};
-    private static final int[] SIDE_SLOTS = new int[]{9};
+    private static final int[] TOP_SLOTS = {10};
+    private static final int[] BOTTOM_SLOTS = IntStream.range(0, 9).toArray();
+    private static final int[] SIDE_SLOTS = {9};
 
     public static final int MINE_COOLDOWN = 12;
 
@@ -58,14 +55,14 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
     public static final int HAS_BLOCK_PROPERTY_INDEX = 3;
     public static final int PROPERTY_COUNT = 4;
     public static final float FUEL_MULTIPLIER = 1f;
+
     int burnTime;
     int fuelTime;
     float breakProgress;
     boolean hasBlock;
     int mineCooldown;
 
-    protected final PropertyDelegate propertyDelegate = new PropertyDelegate(){
-
+    protected final PropertyDelegate propertyDelegate = new PropertyDelegate() {
         @Override
         public int get(int index) {
             switch (index) {
@@ -163,8 +160,8 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
     @Override
     public void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
-        nbt.putShort("BurnTime", (short)this.burnTime);
-        nbt.putShort("BreakTime", (short)this.breakProgress);
+        nbt.putShort("BurnTime", (short) this.burnTime);
+        nbt.putShort("BreakTime", (short) this.breakProgress);
         nbt.putInt("MineCooldown", this.mineCooldown);
         Inventories.writeNbt(nbt, this.inventory);
     }
@@ -237,6 +234,7 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
 
 
     private static boolean canAcceptBlockOutput(ServerWorld world, BlockPos blockPos, BlockState blockState, DefaultedList<ItemStack> slots) {
+        ItemStack toolStack = slots.get(10);
 
         if (blockState == null || blockState.isAir()) {
             return false;
@@ -245,8 +243,6 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
         if (blockState.getBlock() instanceof OperatorBlock) {
             return false;
         }
-
-        ItemStack toolStack = slots.get(10);
 
         if (toolStack.getItem() instanceof HoeItem && blockState.getBlock() instanceof CropBlock) {
             return ((CropBlock) blockState.getBlock()).isMature(blockState);
@@ -264,15 +260,12 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
     }
 
     private static boolean collectBlock(ServerWorld world, BlockPos blockPos, BlockState blockState, DefaultedList<ItemStack> slots, IgneousMinerBlockEntity blockEntity) {
-        if (blockPos == null || !canAcceptBlockOutput(world, blockPos, blockState, slots)) {
-            return false;
-        }
+        if (blockPos == null || !canAcceptBlockOutput(world, blockPos, blockState, slots)) return false;
 
         ItemStack toolStack = slots.get(10);
 
         LootContext.Builder builder = new LootContext.Builder(world).parameter(LootContextParameters.ORIGIN, Vec3d.ofCenter(blockPos)).parameter(LootContextParameters.TOOL, toolStack).optionalParameter(LootContextParameters.BLOCK_ENTITY, world.getBlockEntity(blockPos));
         List<ItemStack> resultStacks = blockState.getDroppedStacks(builder);
-
 
         for (ItemStack resultStack : resultStacks) {
             var outputStacks = getAllAvailable(resultStack, slots);
@@ -281,17 +274,14 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
                 if (outputStack.getCount() + countLeft > resultStack.getMaxCount()) {
                     if (outputStack.isEmpty()) {
                         slots.set(slots.indexOf(outputStack), ItemStackUtils.copyWithCount(resultStack, resultStack.getMaxCount()));
-                    }
-                    else {
+                    } else {
                         outputStack.setCount(resultStack.getMaxCount());
                     }
                     countLeft -= resultStack.getMaxCount() - outputStack.getCount();
-                }
-                else {
+                } else {
                     if (outputStack.isEmpty()) {
                         slots.set(slots.indexOf(outputStack), ItemStackUtils.copyWithCount(resultStack, countLeft));
-                    }
-                    else {
+                    } else {
                         outputStack.increment(countLeft);
                     }
                     countLeft = 0;
@@ -305,9 +295,8 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
 
         world.breakBlock(blockPos, false);
         blockEntity.hasBlock = false;
-        if(toolStack.damage(1, world.getRandom(), null)) {
-            slots.set(10, ItemStack.EMPTY);
-        }
+
+        handleToolDamage(slots, world);
 
         blockEntity.mineCooldown = MINE_COOLDOWN;
         return true;
@@ -319,7 +308,7 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
             return 0.0f;
         }
         int i = (!state.isToolRequired() || tool.isSuitableFor(state)) ? 30 : 100;
-        return getBlockBreakingSpeed(state, tool) / f / (float)i;
+        return getBlockBreakingSpeed(state, tool) / f / i;
     }
 
     private static float getBlockBreakingSpeed(BlockState block, ItemStack tool) {
@@ -327,10 +316,21 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
         if (f > 1.0f) {
             int i = EnchantmentHelper.getLevel(Enchantments.EFFICIENCY, tool);
             if (i > 0 && !tool.isEmpty()) {
-                f += (float)(i * i + 1);
+                f += (i * i + 1);
             }
         }
         return f;
+    }
+
+    private static void handleToolDamage(DefaultedList<ItemStack> slots, ServerWorld world) {
+        ItemStack toolStack = slots.get(10);
+        int unbreakingLevel = EnchantmentHelper.get(toolStack).getOrDefault(Enchantments.UNBREAKING, 0);
+
+        boolean shouldTakeDamage = (unbreakingLevel == 0) || (world.getRandom().nextFloat() >= (1.0F / (unbreakingLevel + 1)));
+
+        if (shouldTakeDamage && toolStack.damage(1, world.getRandom(), null)) {
+            slots.set(10, ItemStack.EMPTY);
+        }
     }
 
     private static List<ItemStack> getAllAvailable(ItemStack lookingToInsert, DefaultedList<ItemStack> slots) {
@@ -363,8 +363,7 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
     public boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir) {
         if (slot == 9) {
             return ItemStackUtils.isFuel(stack);
-        }
-        else if (slot == 10) {
+        } else if (slot == 10) {
             return ItemStackUtils.isTool(stack);
         }
 
