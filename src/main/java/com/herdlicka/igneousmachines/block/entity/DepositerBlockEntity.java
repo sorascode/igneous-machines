@@ -12,6 +12,6 @@ public class DepositerBlockEntity extends DispenserBlockEntity {
     }
 
     protected Text getContainerName() {
-        return Text.translatable("container.dropper");
+        return Text.translatable(getCachedState().getBlock().getTranslationKey());
     }
 }

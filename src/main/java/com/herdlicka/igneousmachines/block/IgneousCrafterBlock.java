@@ -135,11 +135,11 @@ public class IgneousCrafterBlock extends BlockWithEntity {
     @Override
     @Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return checkType(world, type, IgneousMachinesMod.IGNEOUS_CRAFTER_BLOCK_ENTITY);
+        return validateTicker(world, type, IgneousMachinesMod.IGNEOUS_CRAFTER_BLOCK_ENTITY);
     }
 
     @Nullable
-    protected static <T extends BlockEntity> BlockEntityTicker<T> checkType(World world, BlockEntityType<T> givenType, BlockEntityType<? extends IgneousCrafterBlockEntity> expectedType) {
-        return world.isClient ? null : checkType(givenType, expectedType, IgneousCrafterBlockEntity::tick);
+    protected static <T extends BlockEntity> BlockEntityTicker<T> validateTicker(World world, BlockEntityType<T> givenType, BlockEntityType<? extends IgneousCrafterBlockEntity> expectedType) {
+        return world.isClient ? null : validateTicker(givenType, expectedType, IgneousCrafterBlockEntity::tick);
     }
 }

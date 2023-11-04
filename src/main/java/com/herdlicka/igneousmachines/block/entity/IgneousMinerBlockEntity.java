@@ -31,7 +31,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPointer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
@@ -47,9 +46,9 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
 
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(11, ItemStack.EMPTY);
 
-    private static final int[] TOP_SLOTS = { 10 };
+    private static final int[] TOP_SLOTS = {10};
     private static final int[] BOTTOM_SLOTS = IntStream.range(0, 9).toArray();
-    private static final int[] SIDE_SLOTS = { 9 };
+    private static final int[] SIDE_SLOTS = {9};
 
     public static final int MINE_COOLDOWN = 12;
     public static final int BURN_TIME_PROPERTY_INDEX = 0;
@@ -186,9 +185,8 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
 
         var isTriggered = state.get(IgneousMinerBlock.TRIGGERED);
 
-        BlockPointer pointer = new BlockPointer(serverWorld, pos, state, null);
-        Direction direction = pointer.state().get(IgneousMinerBlock.FACING);
-        BlockPos blockPos = pointer.pos().offset(direction);
+        Direction direction = state.get(IgneousMinerBlock.FACING);
+        BlockPos blockPos = pos.offset(direction);
         BlockState blockState = world.getBlockState(blockPos);
 
         blockEntity.hasBlock = hasTool && !blockState.isAir() && toolStack.isSuitableFor(blockState);

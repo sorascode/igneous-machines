@@ -6,7 +6,6 @@ import com.herdlicka.igneousmachines.block.IgneousMinerBlock;
 import com.herdlicka.igneousmachines.block.entity.DepositerBlockEntity;
 import com.herdlicka.igneousmachines.block.entity.IgneousCrafterBlockEntity;
 import com.herdlicka.igneousmachines.block.entity.IgneousMinerBlockEntity;
-import com.herdlicka.igneousmachines.screen.DepositerScreenHandler;
 import com.herdlicka.igneousmachines.screen.IgneousCrafterScreenHandler;
 import com.herdlicka.igneousmachines.screen.IgneousMinerScreenHandler;
 import net.fabricmc.api.ModInitializer;
@@ -38,7 +37,6 @@ public class IgneousMachinesMod implements ModInitializer {
     public static final Block DEPOSITER_BLOCK;
     public static final BlockItem DEPOSITER_BLOCK_ITEM;
     public static final BlockEntityType<DepositerBlockEntity> DEPOSITER_BLOCK_ENTITY;
-    public static final ScreenHandlerType<DepositerScreenHandler> DEPOSITER_SCREEN_HANDLER;
 
     public static final Block IGNEOUS_MINER_BLOCK;
     public static final BlockItem IGNEOUS_MINER_BLOCK_ITEM;
@@ -62,7 +60,6 @@ public class IgneousMachinesMod implements ModInitializer {
         DEPOSITER_BLOCK = Registry.register(Registries.BLOCK, DEPOSITER, new DepositerBlock(FabricBlockSettings.copyOf(Blocks.DISPENSER)));
         DEPOSITER_BLOCK_ITEM = Registry.register(Registries.ITEM, DEPOSITER, new BlockItem(DEPOSITER_BLOCK, new FabricItemSettings()));
         DEPOSITER_BLOCK_ENTITY = Registry.register(Registries.BLOCK_ENTITY_TYPE, DEPOSITER, FabricBlockEntityTypeBuilder.create(DepositerBlockEntity::new, DEPOSITER_BLOCK).build(null));
-        DEPOSITER_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(DEPOSITER, DepositerScreenHandler::new);
 
         IGNEOUS_MINER_BLOCK = Registry.register(Registries.BLOCK, IGNEOUS_MINER, new IgneousMinerBlock(FabricBlockSettings.copyOf(Blocks.FURNACE)));
         IGNEOUS_MINER_BLOCK_ITEM = Registry.register(Registries.ITEM, IGNEOUS_MINER, new BlockItem(IGNEOUS_MINER_BLOCK, new FabricItemSettings()));

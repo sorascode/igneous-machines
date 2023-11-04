@@ -22,7 +22,6 @@ import net.minecraft.util.Identifier;
 @Environment(value = EnvType.CLIENT)
 public class IgneousCrafterScreen extends HandledScreen<IgneousCrafterScreenHandler> implements RecipeBookProvider {
     private static final Identifier TEXTURE = new Identifier("igneous-machines", "textures/gui/container/igneous_crafter.png");
-    private static final Identifier RECIPE_BUTTON_TEXTURE = new Identifier("textures/gui/recipe_button.png");
     private final RecipeBookWidget recipeBook = new RecipeBookWidget();
     private boolean narrow;
 
@@ -78,7 +77,7 @@ public class IgneousCrafterScreen extends HandledScreen<IgneousCrafterScreenHand
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context);
+        this.renderBackground(context, mouseX, mouseY, delta);
         if (!this.handler.slots.get(0).hasStack()) {
             this.outputSlot.draw(context, this.client, x, y);
         }
@@ -162,7 +161,7 @@ public class IgneousCrafterScreen extends HandledScreen<IgneousCrafterScreenHand
         int bookX = 136;
         int bookY = 47;
 
-        this.addDrawableChild(new TexturedButtonWidget(this.x + bookX, this.height / 2 - bookY, 20, 18, 0, 0, 19, RECIPE_BUTTON_TEXTURE, button -> {
+        this.addDrawableChild(new TexturedButtonWidget(this.x + bookX, this.height / 2 - bookY, 20, 18, RecipeBookWidget.BUTTON_TEXTURES, (button) -> {
             this.recipeBook.toggleOpen();
             this.x = this.recipeBook.findLeftEdge(this.width, this.backgroundWidth);
             button.setPosition(this.x + bookX, this.height / 2 - bookY);

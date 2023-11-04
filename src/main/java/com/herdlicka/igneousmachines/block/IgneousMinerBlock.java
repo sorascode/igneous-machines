@@ -156,12 +156,12 @@ public class IgneousMinerBlock extends BlockWithEntity {
     @Override
     @Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return checkType(world, type, IgneousMachinesMod.IGNEOUS_MINER_BLOCK_ENTITY);
+        return validateTicker(world, type, IgneousMachinesMod.IGNEOUS_MINER_BLOCK_ENTITY);
     }
 
     @Nullable
-    protected static <T extends BlockEntity> BlockEntityTicker<T> checkType(World world, BlockEntityType<T> givenType, BlockEntityType<? extends IgneousMinerBlockEntity> expectedType) {
-        return world.isClient ? null : checkType(givenType, expectedType, IgneousMinerBlockEntity::tick);
+    protected static <T extends BlockEntity> BlockEntityTicker<T> validateTicker(World world, BlockEntityType<T> givenType, BlockEntityType<? extends IgneousMinerBlockEntity> expectedType) {
+        return world.isClient ? null : validateTicker(givenType, expectedType, IgneousMinerBlockEntity::tick);
     }
 
     private void updatePowered(World world, BlockPos pos, BlockState state) {
