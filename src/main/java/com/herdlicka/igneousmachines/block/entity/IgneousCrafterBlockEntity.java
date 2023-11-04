@@ -26,6 +26,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeInputProvider;
 import net.minecraft.recipe.RecipeManager;
 import net.minecraft.recipe.RecipeMatcher;
@@ -69,7 +70,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
     int craftTime;
     int craftTimeTotal = DEFAULT_CRAFT_TIME;
 
-    Recipe recipe = null;
+    RecipeEntry<?> recipe = null;
     ItemStack recipeOutput = ItemStack.EMPTY;
 
     boolean recipeInitialized = false;
@@ -254,12 +255,12 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
         }
     }
 
-    private static boolean canAcceptRecipeOutput(DynamicRegistryManager registryManager, @Nullable Recipe<?> recipe, DefaultedList<ItemStack> slots, int count) {
+    private static boolean canAcceptRecipeOutput(DynamicRegistryManager registryManager, @Nullable RecipeEntry<?> recipe, DefaultedList<ItemStack> slots, int count) {
         if (recipe == null) {
             return false;
         }
 
-        ItemStack resultStack = recipe.getOutput(registryManager);
+        ItemStack resultStack = recipe.value().getResult(registryManager);
         if (resultStack.isEmpty()) {
             return false;
         }
@@ -305,7 +306,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
         return false;
     }
 
-    private static boolean craftRecipe(DynamicRegistryManager registryManager, @Nullable Recipe<?> recipe, DefaultedList<ItemStack> slots, int count) {
+    private static boolean craftRecipe(DynamicRegistryManager registryManager, @Nullable RecipeEntry<?> recipe, DefaultedList<ItemStack> slots, int count) {
         if (recipe == null || !canAcceptRecipeOutput(registryManager, recipe, slots, count)) {
             return false;
         }
@@ -327,7 +328,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
                 return false;
             }
         }
-        ItemStack itemStack2 = recipe.getOutput(registryManager);
+        ItemStack itemStack2 = recipe.value().getResult(registryManager);
         ItemStack itemStack3 = slots.get(10);
         if (itemStack3.isEmpty()) {
             slots.set(10, itemStack2.copy());
@@ -376,16 +377,16 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
     }
 
     @Override
-    public void setLastRecipe(@Nullable Recipe<?> recipe) {
+    public void setLastRecipe(@Nullable RecipeEntry<?> recipe) {
         if (recipe != null) {
-            Identifier identifier = recipe.getId();
+            Identifier identifier = recipe.id();
             this.recipesUsed.addTo(identifier, 1);
         }
     }
 
     @Nullable
     @Override
-    public Recipe<?> getLastRecipe() {
+    public RecipeEntry<?> getLastRecipe() {
         return null;
     }
 
@@ -413,7 +414,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
         if (recipe == null) {
             recipeOutput = ItemStack.EMPTY;
         } else {
-            recipeOutput = recipe.getOutput(world.getRegistryManager());
+            recipeOutput = recipe.value().getResult(world.getRegistryManager());
         }
         this.recipeInitialized = true;
 

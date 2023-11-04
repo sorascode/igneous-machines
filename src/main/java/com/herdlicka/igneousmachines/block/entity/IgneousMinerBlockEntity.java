@@ -31,7 +31,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPointerImpl;
+import net.minecraft.util.math.BlockPointer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
@@ -186,9 +186,9 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
 
         var isTriggered = state.get(IgneousMinerBlock.TRIGGERED);
 
-        BlockPointerImpl pointer = new BlockPointerImpl(serverWorld, pos);
-        Direction direction = pointer.getBlockState().get(IgneousMinerBlock.FACING);
-        BlockPos blockPos = pointer.getPos().offset(direction);
+        BlockPointer pointer = new BlockPointer(serverWorld, pos, state, null);
+        Direction direction = pointer.state().get(IgneousMinerBlock.FACING);
+        BlockPos blockPos = pointer.pos().offset(direction);
         BlockState blockState = world.getBlockState(blockPos);
 
         blockEntity.hasBlock = hasTool && !blockState.isAir() && toolStack.isSuitableFor(blockState);

@@ -22,12 +22,12 @@ public class DepositingDispenserBehavior
         this.setSuccess(false);
         Item item = stack.getItem();
         if (item instanceof BlockItem) {
-            Direction direction = pointer.getBlockState().get(DispenserBlock.FACING);
-            BlockPos blockPos = pointer.getPos().offset(direction);
-            Direction direction2 = pointer.getWorld().isAir(blockPos.down()) ? direction : Direction.UP;
-            if (pointer.getWorld().isAir(blockPos)) {
+            Direction direction = pointer.state().get(DispenserBlock.FACING);
+            BlockPos blockPos = pointer.pos().offset(direction);
+            Direction direction2 = pointer.world().isAir(blockPos.down()) ? direction : Direction.UP;
+            if (pointer.world().isAir(blockPos)) {
                 try {
-                    this.setSuccess(((BlockItem) item).place(new AutomaticItemPlacementContext((World) pointer.getWorld(), blockPos, direction, stack, direction2)).isAccepted());
+                    this.setSuccess(((BlockItem) item).place(new AutomaticItemPlacementContext((World) pointer.world(), blockPos, direction, stack, direction2)).isAccepted());
                 } catch (Exception exception) {
                     LOGGER.error("Error trying to place shulker box at {}", (Object) blockPos, (Object) exception);
                 }

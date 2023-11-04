@@ -1,7 +1,9 @@
 package com.herdlicka.igneousmachines.block;
 
-import com.herdlicka.igneousmachines.block.entity.DepositerBlockEntity;
+import com.herdlicka.igneousmachines.IgneousMachinesMod;
 import com.herdlicka.igneousmachines.block.dispenser.DepositingDispenserBehavior;
+import com.herdlicka.igneousmachines.block.entity.DepositerBlockEntity;
+import com.mojang.logging.LogUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -24,15 +26,18 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPointerImpl;
+import net.minecraft.util.math.BlockPointer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
 import net.minecraft.world.event.GameEvent;
+import org.slf4j.Logger;
 
 public class DepositerBlock extends BlockWithEntity {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
     public static final DirectionProperty FACING = FacingBlock.FACING;
     public static final BooleanProperty TRIGGERED = Properties.TRIGGERED;
 
@@ -77,18 +82,22 @@ public class DepositerBlock extends BlockWithEntity {
         return ActionResult.SUCCESS;
     }
 
-    protected void place(ServerWorld world, BlockPos pos) {
-        BlockPointerImpl blockPointerImpl = new BlockPointerImpl(world, pos);
-        DepositerBlockEntity blockEntity = blockPointerImpl.getBlockEntity();
-        int i = blockEntity.chooseNonEmptySlot(world.random);
-        if (i < 0) {
-            world.syncWorldEvent(WorldEvents.DISPENSER_FAILS, pos, 0);
-            world.emitGameEvent(GameEvent.BLOCK_ACTIVATE, pos, GameEvent.Emitter.of(blockEntity.getCachedState()));
-            return;
+    protected void place(ServerWorld world, BlockState state, BlockPos pos) {
+        DepositerBlockEntity blockEntity = world.getBlockEntity(pos, IgneousMachinesMod.DEPOSITER_BLOCK_ENTITY).orElse(null);
+        if (blockEntity == null) {
+            LOGGER.warn("Ignoring dispensing attempt for Dispenser without matching block entity at {}", pos);
+        } else {
+            BlockPointer blockPointerImpl = new BlockPointer(world, pos, state, blockEntity);
+            int i = blockEntity.chooseNonEmptySlot(world.random);
+            if (i < 0) {
+                world.syncWorldEvent(WorldEvents.DISPENSER_FAILS, pos, 0);
+                world.emitGameEvent(GameEvent.BLOCK_ACTIVATE, pos, GameEvent.Emitter.of(blockEntity.getCachedState()));
+                return;
+            }
+            ItemStack itemStack = blockEntity.getStack(i);
+            DispenserBehavior dispenserBehavior = new DepositingDispenserBehavior();
+            blockEntity.setStack(i, dispenserBehavior.dispense(blockPointerImpl, itemStack));
         }
-        ItemStack itemStack = blockEntity.getStack(i);
-        DispenserBehavior dispenserBehavior = new DepositingDispenserBehavior();
-        blockEntity.setStack(i, dispenserBehavior.dispense(blockPointerImpl, itemStack));
     }
 
     @Override
@@ -105,7 +114,7 @@ public class DepositerBlock extends BlockWithEntity {
 
     @Override
     public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-        this.place(world, pos);
+        this.place(world, state, pos);
     }
 
 

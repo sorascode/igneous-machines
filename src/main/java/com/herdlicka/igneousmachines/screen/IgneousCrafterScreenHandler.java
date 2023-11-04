@@ -11,6 +11,7 @@ import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Recipe;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeInputProvider;
 import net.minecraft.recipe.RecipeMatcher;
 import net.minecraft.recipe.book.RecipeBookCategory;
@@ -135,8 +136,8 @@ public class IgneousCrafterScreenHandler extends AbstractRecipeScreenHandler<Inv
     }
 
     @Override
-    public boolean matches(Recipe recipe) {
-        return recipe.matches(this.inventory, this.player.getWorld());
+    public boolean matches(RecipeEntry<? extends Recipe<Inventory>> recipe) {
+        return recipe.value().matches(this.inventory, this.player.getWorld());
     }
 
     @Override
