@@ -1,2 +1,2 @@
-Features:
-* Igneous Miner now respects the Unbreaking enchantment of tools
+Changes:
+* Separate version for 1.20.2
