@@ -1,33 +1,64 @@
 {
   "variants": {
-    "facing=east,lit=false": {
+    "facing=east,lit=false,triggered=false": {
       "model": "igneous-machines:block/igneous_miner",
       "y": 90
     },
-    "facing=east,lit=true": {
-      "model": "igneous-machines:block/igneous_miner_on",
+    "facing=east,lit=true,triggered=false": {
+      "model": "igneous-machines:block/igneous_miner_lit",
       "y": 90
     },
-    "facing=north,lit=false": {
+    "facing=north,lit=false,triggered=false": {
       "model": "igneous-machines:block/igneous_miner"
     },
-    "facing=north,lit=true": {
-      "model": "igneous-machines:block/igneous_miner_on"
+    "facing=north,lit=true,triggered=false": {
+      "model": "igneous-machines:block/igneous_miner_lit"
     },
-    "facing=south,lit=false": {
+    "facing=south,lit=false,triggered=false": {
       "model": "igneous-machines:block/igneous_miner",
       "y": 180
     },
-    "facing=south,lit=true": {
-      "model": "igneous-machines:block/igneous_miner_on",
+    "facing=south,lit=true,triggered=false": {
+      "model": "igneous-machines:block/igneous_miner_lit",
       "y": 180
     },
-    "facing=west,lit=false": {
+    "facing=west,lit=false,triggered=false": {
       "model": "igneous-machines:block/igneous_miner",
       "y": 270
     },
-    "facing=west,lit=true": {
+    "facing=west,lit=true,triggered=false": {
+      "model": "igneous-machines:block/igneous_miner_lit",
+      "y": 270
+    },
+
+    "facing=east,lit=false,triggered=true": {
       "model": "igneous-machines:block/igneous_miner_on",
+      "y": 90
+    },
+    "facing=east,lit=true,triggered=true": {
+      "model": "igneous-machines:block/igneous_miner_lit_on",
+      "y": 90
+    },
+    "facing=north,lit=false,triggered=true": {
+      "model": "igneous-machines:block/igneous_miner_on"
+    },
+    "facing=north,lit=true,triggered=true": {
+      "model": "igneous-machines:block/igneous_miner_lit_on"
+    },
+    "facing=south,lit=false,triggered=true": {
+      "model": "igneous-machines:block/igneous_miner_on",
+      "y": 180
+    },
+    "facing=south,lit=true,triggered=true": {
+      "model": "igneous-machines:block/igneous_miner_lit_on",
+      "y": 180
+    },
+    "facing=west,lit=false,triggered=true": {
+      "model": "igneous-machines:block/igneous_miner_on",
+      "y": 270
+    },
+    "facing=west,lit=true,triggered=true": {
+      "model": "igneous-machines:block/igneous_miner_lit_on",
       "y": 270
     }
   }

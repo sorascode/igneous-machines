@@ -1,0 +1,9 @@
+{
+  "parent": "igneous-machines:block/igneous_crafter",
+  "textures": {
+    "north": "igneous-machines:block/igneous_crafter_front_lit",
+    "south": "igneous-machines:block/igneous_crafter_back_lit"
+  }
+}
+
+
