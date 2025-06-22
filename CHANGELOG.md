@@ -1,3 +1,3 @@
 Changes:
 * updated texture.
-* crafter recipe now take traped chest instead quartzs and diamond.
+* igneous crafter recipe now uses trapped chest instead of 2 quartz and a diamond.
