@@ -1,8 +1,3 @@
----------------------------------------------------------------------------------------------------
-Version: 1.3.2
-Date: 2025-06-22
-Changes
-* updated texture.
----------------------------------------------------------------------------------------------------
 Changes:
-* Separate version for 1.20.2
+* updated texture.
+* crafter recipe now take traped chest instead quartzs and diamond.
