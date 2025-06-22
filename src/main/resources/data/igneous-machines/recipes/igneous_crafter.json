@@ -1,22 +1,19 @@
 {
     "type": "minecraft:crafting_shaped",
     "pattern": [
-        "#D#",
-        "QCQ",
+        "#C#",
+        "#T#",
         "#F#"
     ],
     "key": {
         "#": {
             "item": "minecraft:cobblestone"
         },
-        "D": {
-            "item": "minecraft:diamond"
-        },
-        "Q": {
-            "item": "minecraft:quartz"
-        },
         "C": {
             "item": "minecraft:crafting_table"
+        },
+        "T": {
+            "item": "minecraft:trapped_chest"
         },
         "F": {
             "item": "minecraft:furnace"
