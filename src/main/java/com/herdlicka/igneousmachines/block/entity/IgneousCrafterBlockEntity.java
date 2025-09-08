@@ -15,6 +15,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.CraftingInventory;
@@ -212,11 +213,12 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
                 if (blockEntity.isBurning()) {
                     stateChanged = true;
                     if (hasFuel) {
-                        Item item = fuelStack.getItem();
+                        Item item_fuel = fuelStack.getItem();
+                        Item item_reminder=item_fuel.getRecipeRemainder();
                         fuelStack.decrement(1);
-                        if (fuelStack.isEmpty()) {
-                            Item item2 = item.getRecipeRemainder();
-                            blockEntity.inventory.set(9, item2 == null ? ItemStack.EMPTY : new ItemStack(item2));
+                        if( item_reminder != null )
+                        {
+                            insertOrDrop(world,pos,blockEntity.inventory,new ItemStack(item_reminder),SIDE_SLOTS);
                         }
                     }
                 }
@@ -228,6 +230,11 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
                     blockEntity.craftTimeTotal = getCraftTime();
                     if (craftRecipe(world.getRegistryManager(), blockEntity.recipe, blockEntity.inventory, i)) {
                         blockEntity.setLastRecipe(blockEntity.recipe);
+                        List<ItemStack> reminder_list=blockEntity.recipe.getRemainder(blockEntity.craftingInventory);
+                        for(ItemStack reminderStack: reminder_list)
+                        {
+                            insertOrDrop(world,pos,blockEntity.inventory,reminderStack,TOP_SLOTS);
+                        }
                     }
                     stateChanged = true;
                 }
@@ -335,6 +342,34 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
             itemStack3.increment(itemStack2.getCount());
         }
         return true;
+    }
+
+    public static void insertOrDrop(World world, BlockPos pos, DefaultedList<ItemStack> slots, ItemStack item_to_insert, int[] slot_range)
+    {
+        for(int slot_index : slot_range)
+        {
+            ItemStack try_stack = slots.get(slot_index);
+            if( try_stack.isEmpty() )
+            {
+                slots.set(slot_index, item_to_insert.copy());
+                return;
+            }
+            if( ItemStack.canCombine(try_stack,item_to_insert) )
+            {
+                int combined_count=item_to_insert.getCount() + try_stack.getCount();
+                int stack_size=try_stack.getItem().getMaxCount();
+                if( combined_count <= stack_size )
+                {
+                    try_stack.setCount(combined_count);
+                    return;
+                }
+                try_stack.setCount(stack_size);
+                item_to_insert.setCount(combined_count-stack_size);
+            }
+        }
+        ItemEntity item_to_drop=new ItemEntity(world,pos.getX(),pos.getY(),pos.getZ(),item_to_insert);
+        world.spawnEntity(item_to_drop);
+        return;
     }
 
     @Override

@@ -170,7 +170,7 @@ public class IgneousMinerBlock extends BlockWithEntity {
         if (bl && !bl2) {
             world.setBlockState(pos, state.with(TRIGGERED, true), Block.NOTIFY_LISTENERS);
         } else if (!bl && bl2) {
-            world.setBlockState(pos, state.with(TRIGGERED, false), Block.Block.NOTIFY_LISTENERS);
+            world.setBlockState(pos, state.with(TRIGGERED, false), Block.NOTIFY_LISTENERS);
         }
     }
 }
