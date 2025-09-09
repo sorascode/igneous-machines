@@ -40,6 +40,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.util.math.BlockPointerImpl;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
@@ -384,7 +385,13 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
                 return;
             }
         }
-        ItemEntity item_to_drop=new ItemEntity(world,pos.getX(),pos.getY(),pos.getZ(),item_to_insert);
+        //gonna do some server works
+        if (world.isClient()) {return;}
+        Direction dir = ( (Direction) new BlockPointerImpl((ServerWorld)world,pos).getBlockState().get(IgneousCrafterBlock.FACING) ).getOpposite();
+        double sx= pos.getX() + dir.getOffsetX() + 0.5 ;
+        double sy= pos.getY() + dir.getOffsetY() + 0.5 ;
+        double sz= pos.getZ() + dir.getOffsetZ() + 0.5 ;
+        ItemEntity item_to_drop=new ItemEntity(world,sx,sy,sz,item_to_insert);
         world.spawnEntity(item_to_drop);
         return;
     }

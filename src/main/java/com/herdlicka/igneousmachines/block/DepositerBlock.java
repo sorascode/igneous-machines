@@ -97,9 +97,9 @@ public class DepositerBlock extends BlockWithEntity {
         boolean bl2 = state.get(TRIGGERED);
         if (bl && !bl2) {
             world.scheduleBlockTick(pos, this, 4);
-            world.setBlockState(pos, state.with(TRIGGERED, true), Block.NO_REDRAW);
+            world.setBlockState(pos, state.with(TRIGGERED, true), Block.NOTIFY_LISTENERS);
         } else if (!bl && bl2) {
-            world.setBlockState(pos, state.with(TRIGGERED, false), Block.NO_REDRAW);
+            world.setBlockState(pos, state.with(TRIGGERED, false), Block.NOTIFY_LISTENERS);
         }
     }
 
