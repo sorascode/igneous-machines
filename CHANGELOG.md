@@ -1,3 +1,5 @@
 Changes:
-* updated texture.
-* igneous crafter recipe now uses trapped chest instead of 2 quartz and a diamond.
+* crafter code clean up.
+* crafter no longer eat your buckets.
+* crafter will drop items from its back side if inventory is full.
+* miner and depositer will update immediately when powered.

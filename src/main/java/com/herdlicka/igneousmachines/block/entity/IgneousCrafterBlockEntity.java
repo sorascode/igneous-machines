@@ -15,6 +15,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.CraftingInventory;
@@ -39,6 +40,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.util.math.BlockPointerImpl;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
@@ -197,46 +199,59 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
         boolean hasFuel;
         boolean wasBurning = blockEntity.isBurning();
         boolean stateChanged = false;
+
+        int blockEntity_stack_size=blockEntity.getMaxCountPerStack();
+
         if (blockEntity.isBurning()) {
             --blockEntity.burnTime;
+            //if this cause it to unlit, it will be detected at bottom of tick function
+            //CTRL+F: wasBurning
         }
+
         ItemStack fuelStack = blockEntity.inventory.get(9);
-        hasFuel = !fuelStack.isEmpty();
         if (!blockEntity.recipeInitialized) {
             blockEntity.inputSlotsChanged();
         }
-        if (blockEntity.isBurning() || hasFuel) {
-            int i = blockEntity.getMaxCountPerStack();
-            if (!blockEntity.isBurning() && canAcceptRecipeOutput(world.getRegistryManager(), blockEntity.recipe, blockEntity.inventory, i)) {
-                blockEntity.fuelTime = blockEntity.burnTime = blockEntity.getFuelTime(fuelStack);
-                if (blockEntity.isBurning()) {
-                    stateChanged = true;
-                    if (hasFuel) {
-                        Item item = fuelStack.getItem();
-                        fuelStack.decrement(1);
-                        if (fuelStack.isEmpty()) {
-                            Item item2 = item.getRecipeRemainder();
-                            blockEntity.inventory.set(9, item2 == null ? ItemStack.EMPTY : new ItemStack(item2));
-                        }
-                    }
-                }
+
+        boolean canCraft=canAcceptRecipeOutput(world.getRegistryManager(), blockEntity.recipe, blockEntity.inventory, blockEntity_stack_size);
+        //refuel if it can process but out of fuel
+        if( canCraft && !blockEntity.isBurning() && !fuelStack.isEmpty() )
+        {
+            stateChanged = true;
+            blockEntity.fuelTime = blockEntity.burnTime = blockEntity.getFuelTime(fuelStack);
+            Item item_fuel = fuelStack.getItem();
+            Item item_remainder=item_fuel.getRecipeRemainder();
+            fuelStack.decrement(1);
+            if( item_remainder != null )
+            {
+                insertOrDrop(world,pos,blockEntity.inventory,blockEntity_stack_size,new ItemStack(item_remainder),SIDE_SLOTS);
             }
-            if (blockEntity.isBurning() && canAcceptRecipeOutput(world.getRegistryManager(), blockEntity.recipe, blockEntity.inventory, i)) {
-                ++blockEntity.craftTime;
-                if (blockEntity.craftTime == blockEntity.craftTimeTotal) {
-                    blockEntity.craftTime = 0;
-                    blockEntity.craftTimeTotal = getCraftTime();
-                    if (craftRecipe(world.getRegistryManager(), blockEntity.recipe, blockEntity.inventory, i)) {
-                        blockEntity.setLastRecipe(blockEntity.recipe);
-                    }
-                    stateChanged = true;
-                }
-            } else {
-                blockEntity.craftTime = 0;
-            }
-        } else if (!blockEntity.isBurning() && blockEntity.craftTime > 0) {
-            blockEntity.craftTime = MathHelper.clamp(blockEntity.craftTime - 2, 0, blockEntity.craftTimeTotal);
         }
+
+        //uncraft if unfueld
+        if( !blockEntity.isBurning() ) { blockEntity.craftTime = MathHelper.clamp(blockEntity.craftTime - 2, 0, blockEntity.craftTimeTotal); }
+        //processing crafting
+        if( canCraft && blockEntity.isBurning())
+        {
+            ++blockEntity.craftTime;
+            if (blockEntity.craftTime == blockEntity.craftTimeTotal)
+            {
+                stateChanged = true;
+                blockEntity.craftTime = 0;
+                blockEntity.craftTimeTotal = getCraftTime();
+                if ( craftRecipe(world.getRegistryManager(), blockEntity.recipe, blockEntity.inventory, blockEntity_stack_size) )
+                {
+                    blockEntity.setLastRecipe(blockEntity.recipe);
+                    List<ItemStack> remainder_list=blockEntity.recipe.getRemainder(blockEntity.craftingInventory);
+                    for(ItemStack remainderStack: remainder_list)
+                    {
+                        insertOrDrop(world,pos,blockEntity.inventory,blockEntity_stack_size,remainderStack,TOP_SLOTS);
+                    }
+                }
+            }
+        }
+       
+        
         if (wasBurning != blockEntity.isBurning()) {
             stateChanged = true;
             state = state.with(IgneousCrafterBlock.LIT, blockEntity.isBurning());
@@ -254,7 +269,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
         }
     }
 
-    private static boolean canAcceptRecipeOutput(DynamicRegistryManager registryManager, @Nullable Recipe<?> recipe, DefaultedList<ItemStack> slots, int count) {
+    private static boolean canAcceptRecipeOutput(DynamicRegistryManager registryManager, @Nullable Recipe<?> recipe, DefaultedList<ItemStack> slots, int blockEntity_stack_size) {
         if (recipe == null) {
             return false;
         }
@@ -293,20 +308,25 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
         }
 
         ItemStack outputSlotStack = slots.get(10);
+
+        
+
         if (outputSlotStack.isEmpty()) {
             return true;
         }
-        if (!ItemStack.areItemsEqual(outputSlotStack, resultStack)) {
-            return false;
+        if (ItemStack.canCombine(outputSlotStack, resultStack)) {
+            return true;
         }
-        if (outputSlotStack.getCount() + resultStack.getCount() <= count && outputSlotStack.getCount() + resultStack.getCount() <= outputSlotStack.getMaxCount()) {
+        int combined_count=resultStack.getCount() + outputSlotStack.getCount();
+        int stack_size=Math.min(outputSlotStack.getItem().getMaxCount(),blockEntity_stack_size);
+        if (combined_count <= stack_size) {
             return true;
         }
         return false;
     }
 
-    private static boolean craftRecipe(DynamicRegistryManager registryManager, @Nullable Recipe<?> recipe, DefaultedList<ItemStack> slots, int count) {
-        if (recipe == null || !canAcceptRecipeOutput(registryManager, recipe, slots, count)) {
+    private static boolean craftRecipe(DynamicRegistryManager registryManager, @Nullable Recipe<?> recipe, DefaultedList<ItemStack> slots, int blockEntity_stack_size) {
+        if (recipe == null || !canAcceptRecipeOutput(registryManager, recipe, slots, blockEntity_stack_size)) {
             return false;
         }
         for (int i = 0; i < 9; i++) {
@@ -327,14 +347,53 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
                 return false;
             }
         }
-        ItemStack itemStack2 = recipe.getOutput(registryManager);
-        ItemStack itemStack3 = slots.get(10);
-        if (itemStack3.isEmpty()) {
-            slots.set(10, itemStack2.copy());
-        } else if (itemStack3.isOf(itemStack2.getItem())) {
-            itemStack3.increment(itemStack2.getCount());
+        ItemStack resultStack = recipe.getOutput(registryManager);
+        ItemStack outputSlotStack = slots.get(10);
+        if (outputSlotStack.isEmpty()) {
+            slots.set(10, resultStack.copy());
+        } else if ( ItemStack.canCombine(resultStack,outputSlotStack) ) {
+            outputSlotStack.increment(resultStack.getCount());
         }
         return true;
+    }
+
+    private static void insertOrDrop(World world, BlockPos pos, DefaultedList<ItemStack> slots,int blockEntity_stack_size, ItemStack item_to_insert, int[] slot_range)
+    {
+        for(int slot_index : slot_range)
+        {
+            ItemStack try_stack = slots.get(slot_index);
+            if( try_stack.isEmpty() ) { continue; }
+            if( ItemStack.canCombine(try_stack,item_to_insert) )
+            {
+                int combined_count=item_to_insert.getCount() + try_stack.getCount();
+                int stack_size=Math.min(try_stack.getItem().getMaxCount(),blockEntity_stack_size);
+                if( combined_count <= stack_size )
+                {
+                    try_stack.setCount(combined_count);
+                    return;
+                }
+                try_stack.setCount(stack_size);
+                item_to_insert.setCount(combined_count-stack_size);
+            }
+        }
+        for(int slot_index : slot_range)
+        {
+            ItemStack try_stack = slots.get(slot_index);
+            if( try_stack.isEmpty() )
+            {
+                slots.set(slot_index, item_to_insert.copy());
+                return;
+            }
+        }
+        //gonna do some server works
+        if (world.isClient()) {return;}
+        Direction dir = ( (Direction) new BlockPointerImpl((ServerWorld)world,pos).getBlockState().get(IgneousCrafterBlock.FACING) ).getOpposite();
+        double sx= pos.getX() + dir.getOffsetX() + 0.5 ;
+        double sy= pos.getY() + dir.getOffsetY() + 0.5 ;
+        double sz= pos.getZ() + dir.getOffsetZ() + 0.5 ;
+        ItemEntity item_to_drop=new ItemEntity(world,sx,sy,sz,item_to_insert);
+        world.spawnEntity(item_to_drop);
+        return;
     }
 
     @Override
