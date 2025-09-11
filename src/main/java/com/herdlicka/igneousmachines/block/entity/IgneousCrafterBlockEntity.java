@@ -33,6 +33,8 @@ import net.minecraft.recipe.RecipeMatcher;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.recipe.RecipeUnlocker;
 import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -58,6 +60,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
     private static final int[] TOP_SLOTS = new int[]{11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28};
     private static final int[] BOTTOM_SLOTS = new int[]{10};
     private static final int[] SIDE_SLOTS = new int[]{9};
+    private static final int[] OUTPUT_SLOTS = new int[]{9,10};
 
     public static final int BURN_TIME_PROPERTY_INDEX = 0;
     public static final int FUEL_TIME_PROPERTY_INDEX = 1;
@@ -215,7 +218,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
 
         boolean canCraft=canAcceptRecipeOutput(world.getRegistryManager(), blockEntity.recipe, blockEntity.inventory, blockEntity_stack_size);
         //refuel if it can process but out of fuel
-        if( canCraft && !blockEntity.isBurning() && !fuelStack.isEmpty() )
+        if( canCraft && !blockEntity.isBurning() && !fuelStack.isEmpty() && blockEntity.getFuelTime(fuelStack)> 0 )
         {
             stateChanged = true;
             blockEntity.fuelTime = blockEntity.burnTime = blockEntity.getFuelTime(fuelStack);
@@ -239,14 +242,12 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
                 stateChanged = true;
                 blockEntity.craftTime = 0;
                 blockEntity.craftTimeTotal = getCraftTime();
-                if ( craftRecipe(world.getRegistryManager(), blockEntity.recipe, blockEntity.inventory, blockEntity_stack_size) )
+                craftRecipe(world.getRegistryManager(), blockEntity.recipe, blockEntity.inventory, blockEntity_stack_size);
+                blockEntity.setLastRecipe(blockEntity.recipe);
+                List<ItemStack> remainder_list=blockEntity.recipe.getRemainder(blockEntity.craftingInventory);
+                for(ItemStack remainderStack: remainder_list)
                 {
-                    blockEntity.setLastRecipe(blockEntity.recipe);
-                    List<ItemStack> remainder_list=blockEntity.recipe.getRemainder(blockEntity.craftingInventory);
-                    for(ItemStack remainderStack: remainder_list)
-                    {
-                        insertOrDrop(world,pos,blockEntity.inventory,blockEntity_stack_size,remainderStack,TOP_SLOTS);
-                    }
+                    insertOrDrop(world,pos,blockEntity.inventory,blockEntity_stack_size,remainderStack,TOP_SLOTS);
                 }
             }
         }
@@ -319,7 +320,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
         
         ItemStack outputSlotStack = slots.get(10);
         if (outputSlotStack.isEmpty()) { return true; }
-        if (ItemStack.canCombine(outputSlotStack, resultStack)) { return true; }
+        if (!ItemStack.canCombine(outputSlotStack, resultStack)) { return false; }
 
         int combined_count=resultStack.getCount() + outputSlotStack.getCount();
         int stack_size=Math.min(outputSlotStack.getItem().getMaxCount(),blockEntity_stack_size);
@@ -330,6 +331,11 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
 
     private static boolean craftRecipe(DynamicRegistryManager registryManager, @Nullable Recipe<?> recipe, DefaultedList<ItemStack> slots, int blockEntity_stack_size) {
         if (recipe == null || !canAcceptRecipeOutput(registryManager, recipe, slots, blockEntity_stack_size)) {
+            return false;
+        }
+        boolean canCraft=canAcceptRecipeOutput(registryManager, recipe, slots, blockEntity_stack_size);
+        if( canCraft==false )
+        {
             return false;
         }
         
@@ -416,7 +422,7 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
     @Override
     public int[] getAvailableSlots(Direction side) {
         if (side == Direction.DOWN) {
-            return BOTTOM_SLOTS;
+            return OUTPUT_SLOTS;
         }
         if (side == Direction.UP) {
             return TOP_SLOTS;
@@ -437,9 +443,10 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
 
     @Override
     public boolean canExtract(int slot, ItemStack stack, Direction dir) {
-        if (slot == 10) {
-            return true;
-        }
+        if (slot == 10) { return true; }
+
+        boolean is_outputable_item=stack.isIn( TagKey.of(RegistryKeys.ITEM,new Identifier("igneous-machines","fuel_remainder")) );
+        if ( slot == 9 && is_outputable_item ) { return true; }
 
         return false;
     }

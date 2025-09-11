@@ -24,11 +24,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.loot.context.LootContextParameterSet;
 import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPointerImpl;
@@ -48,8 +51,9 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(11, ItemStack.EMPTY);
 
     private static final int[] TOP_SLOTS = { 10 };
-    private static final int[] BOTTOM_SLOTS = IntStream.range(0, 9).toArray();
+    private static final int[] BOTTOM_SLOTS = IntStream.range(0, 10).toArray();
     private static final int[] SIDE_SLOTS = { 9 };
+    private static final int[] OUTPUT_SLOTS = IntStream.range(0, 10).toArray();
 
     public static final int MINE_COOLDOWN = 12;
     public static final int BURN_TIME_PROPERTY_INDEX = 0;
@@ -374,7 +378,12 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
 
     @Override
     public boolean canExtract(int slot, ItemStack stack, Direction dir) {
-        return slot < 9;
+        if (slot < 9) { return true; }
+
+        boolean is_outputable_item=stack.isIn( TagKey.of(RegistryKeys.ITEM,new Identifier("igneous-machines","fuel_remainder")) );
+        if ( slot == 9 && is_outputable_item ) { return true; }
+
+        return false;
     }
 
     private boolean needsCooldown() {
