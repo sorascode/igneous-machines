@@ -51,7 +51,7 @@ public class IgneousMinerBlockEntity extends BlockEntity implements NamedScreenH
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(11, ItemStack.EMPTY);
 
     private static final int[] TOP_SLOTS = { 10 };
-    private static final int[] BOTTOM_SLOTS = IntStream.range(0, 10).toArray();
+    private static final int[] BOTTOM_SLOTS = IntStream.range(0, 9).toArray();
     private static final int[] SIDE_SLOTS = { 9 };
     private static final int[] OUTPUT_SLOTS = IntStream.range(0, 10).toArray();
 

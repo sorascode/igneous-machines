@@ -51,13 +51,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory, RecipeInputInventory, SidedInventory, RecipeUnlocker, RecipeInputProvider {
 
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(29, ItemStack.EMPTY);
     private final CraftingInventory craftingInventory;
 
-    private static final int[] TOP_SLOTS = new int[]{11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28};
+    private static final int[] TOP_SLOTS = IntStream.range(11,29).toArray();
     private static final int[] BOTTOM_SLOTS = new int[]{10};
     private static final int[] SIDE_SLOTS = new int[]{9};
     private static final int[] OUTPUT_SLOTS = new int[]{9,10};
