@@ -25,11 +25,10 @@ import net.minecraft.registry.Registry;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 
-public class IgneousMachinesMod implements ModInitializer {
-    // This logger is used to write text to the console and the log file.
-    // It is considered best practice to use your mod id as the logger's name.
-    // That way, it's clear which mod wrote info, warnings, and errors.
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+public class IgneousMachinesMod implements ModInitializer {
     public static final Block IGNEOUS_CRAFTER_BLOCK;
     public static final BlockItem IGNEOUS_CRAFTER_BLOCK_ITEM;
     public static final BlockEntityType<IgneousCrafterBlockEntity> IGNEOUS_CRAFTER_BLOCK_ENTITY;
@@ -52,6 +51,11 @@ public class IgneousMachinesMod implements ModInitializer {
     public static final Identifier DEPOSITER = new Identifier(MOD_ID, "depositer");
     public static final Identifier IGNEOUS_MINER = new Identifier(MOD_ID, "igneous_miner");
     public static final Identifier RECIPE_CHANGE_PACKET_ID = new Identifier(MOD_ID, "recipe_change");
+
+    // This logger is used to write text to the console and the log file.
+    // It is considered best practice to use your mod id as the logger's name.
+    // That way, it's clear which mod wrote info, warnings, and errors.
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     static {
         IGNEOUS_CRAFTER_BLOCK = Registry.register(Registries.BLOCK, IGNEOUS_CRAFTER, new IgneousCrafterBlock(FabricBlockSettings.copyOf(Blocks.FURNACE)));
