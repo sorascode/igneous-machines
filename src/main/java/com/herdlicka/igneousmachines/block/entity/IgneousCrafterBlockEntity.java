@@ -279,49 +279,52 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
             return false;
         }
 
-        var foundSlots = new ArrayList<ItemStack>();
-        for (int i = 0; i < 9; i++) {
-            var stack = slots.get(i);
-            if (stack.isEmpty()) {
-                continue;
-            }
-            var availableSlots = slots.subList(11, 29);
-            boolean slotFound = false;
-            for (ItemStack availableSlot : availableSlots) {
-                if (!availableSlot.isEmpty() && availableSlot.isOf(stack.getItem())) {
-                    slotFound = true;
-                    availableSlot.decrement(1);
-                    foundSlots.add(availableSlot);
-                    break;
+        //inverse the logic, now it take each ingredient slot, then check every grid slot
+        boolean whole_checked=false;
+        boolean[] checked=new boolean[9];
+        for(int slot_index : TOP_SLOTS)
+        {
+            ItemStack ingredient_slot=slots.get(slot_index);
+            if(ingredient_slot.isEmpty()) { continue; }
+
+            int stack_state=ingredient_slot.getCount();
+            for(int i=0;i<9;i++)
+            {
+                //if ingredient slot is now empty, skip to search next ingredient slot
+                if(stack_state == 0) { break; }
+                //if grid slot is checked, skip
+                if(checked[i]) { continue; }
+                //if the slot is empty, check
+                ItemStack grid_slot=slots.get(i);
+                if( grid_slot.isEmpty() )
+                {
+                    checked[i]=true;
+                    continue;
+                }
+                //now both slot have item, now check if we can still affort it;
+                if( ItemStack.canCombine(grid_slot,ingredient_slot) )
+                {
+                    stack_state--;
+                    checked[i]=true;
+                    continue;
                 }
             }
-            if (!slotFound) {
-                for (ItemStack foundSlot : foundSlots) {
-                    foundSlot.increment(1);
-                }
-                return false;
-            }
+            //finally check if grid is done
+            whole_checked=true;
+            for(int i=0;i<9;i++){ whole_checked = whole_checked && checked[i]; }
+            if(whole_checked){ break; }
         }
-
-        for (ItemStack foundSlot : foundSlots) {
-            foundSlot.increment(1);
-        }
-
-        ItemStack outputSlotStack = slots.get(10);
-
+        //now we know if we have enough ingredient
+        if( whole_checked == false ){ return false; }
         
+        ItemStack outputSlotStack = slots.get(10);
+        if (outputSlotStack.isEmpty()) { return true; }
+        if (ItemStack.canCombine(outputSlotStack, resultStack)) { return true; }
 
-        if (outputSlotStack.isEmpty()) {
-            return true;
-        }
-        if (ItemStack.canCombine(outputSlotStack, resultStack)) {
-            return true;
-        }
         int combined_count=resultStack.getCount() + outputSlotStack.getCount();
         int stack_size=Math.min(outputSlotStack.getItem().getMaxCount(),blockEntity_stack_size);
-        if (combined_count <= stack_size) {
-            return true;
-        }
+        if (combined_count <= stack_size) { return true; }
+
         return false;
     }
 
@@ -329,29 +332,43 @@ public class IgneousCrafterBlockEntity extends BlockEntity implements ExtendedSc
         if (recipe == null || !canAcceptRecipeOutput(registryManager, recipe, slots, blockEntity_stack_size)) {
             return false;
         }
-        for (int i = 0; i < 9; i++) {
-            var stack = slots.get(i);
-            if (stack.isEmpty()) {
-                continue;
-            }
-            var availableSlots = slots.subList(11, 29);
-            boolean slotFound = false;
-            for (ItemStack availableSlot : availableSlots) {
-                if (!availableSlot.isEmpty() && availableSlot.isOf(stack.getItem())) {
-                    availableSlot.decrement(1);
-                    slotFound = true;
-                    break;
+        
+        boolean[] checked=new boolean[9];
+        for(int slot_index : TOP_SLOTS)
+        {
+            ItemStack ingredient_slot=slots.get(slot_index);
+            for(int i=0;i<9;i++)
+            {
+                //if ingredient slot is now empty, skip to search next ingredient slot
+                if( ingredient_slot.isEmpty() ) { break; }
+                //if grid slot is checked, skip
+                if(checked[i]) { continue; }
+                //if the slot is empty, check
+                ItemStack grid_slot=slots.get(i);
+                if( grid_slot.isEmpty() )
+                {
+                    checked[i]=true;
+                    continue;
+                }
+                //now both slot have item, now check if we can still affort it;
+                if( ItemStack.canCombine(grid_slot,ingredient_slot) )
+                {
+                    ingredient_slot.decrement(1);
+                    checked[i]=true;
+                    continue;
                 }
             }
-            if (!slotFound) {
-                return false;
-            }
+            //finally check if grid is done
+            boolean whole_checked=true;
+            for(int i=0;i<9;i++){ whole_checked = whole_checked && checked[i]; }
+            if(whole_checked){ break; }
         }
+
         ItemStack resultStack = recipe.getOutput(registryManager);
         ItemStack outputSlotStack = slots.get(10);
         if (outputSlotStack.isEmpty()) {
             slots.set(10, resultStack.copy());
-        } else if ( ItemStack.canCombine(resultStack,outputSlotStack) ) {
+        } else {
             outputSlotStack.increment(resultStack.getCount());
         }
         return true;
